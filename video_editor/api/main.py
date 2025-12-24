@@ -29,6 +29,7 @@ from utils.video_editor import cut_segments, remove_silence, get_video_info
 from utils.tts_generator import generate_script_audio
 from utils.video_generator import generate_video_from_script, generate_video_from_slides
 from utils.slides import render_deck, load_deck_manifest
+from utils.slides_exporter import package_slide_deck
 from utils.exporter import get_temp_path, cleanup_temp_files
 
 
@@ -40,10 +41,12 @@ UPLOAD_DIR = Path(tempfile.gettempdir()) / "video_editor_uploads"
 OUTPUT_DIR = Path(tempfile.gettempdir()) / "video_editor_outputs"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SLIDES_OUTPUT_ROOT = PROJECT_ROOT / "out" / "slides"
+SLIDES_PACKAGE_ROOT = PROJECT_ROOT / "out" / "slides_packages"
 VIDEO_OUTPUT_ROOT = PROJECT_ROOT / "out"
 UPLOAD_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
 SLIDES_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+SLIDES_PACKAGE_ROOT.mkdir(parents=True, exist_ok=True)
 VIDEO_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Store active WebSocket connections
@@ -127,6 +130,16 @@ class SlidesRenderResponse(BaseModel):
     outputDir: str
     slideCount: int
     slides: List[SlideInfo]
+
+
+class SlidesSaveRequest(BaseModel):
+    file_name: str
+    slides_dir: Optional[str] = None
+    spec_path: Optional[str] = None
+    template: Optional[str] = None
+    project_id: Optional[str] = None
+    source: str = "dynamic_slides"
+    description: Optional[str] = None
 
 
 # Next.js API base URL
@@ -419,6 +432,112 @@ async def render_slides(request: SlidesRenderRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Slide render failed: {str(e)}")
+
+
+@app.post("/api/slides/save-to-library")
+async def save_slides_to_library(request: SlidesSaveRequest):
+    """Package slide deck and save to Asset Library."""
+    import httpx
+
+    if not request.file_name.strip():
+        raise HTTPException(status_code=400, detail="file_name is required")
+
+    if not request.slides_dir and not request.spec_path:
+        raise HTTPException(status_code=400, detail="slides_dir or spec_path is required")
+
+    job_id = str(uuid.uuid4())
+    spec_path = None
+
+    try:
+        if request.slides_dir:
+            slides_dir = resolve_project_path(request.slides_dir)
+            try:
+                manifest = load_deck_manifest(str(slides_dir))
+            except FileNotFoundError as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
+            if request.spec_path:
+                spec_path = resolve_project_path(request.spec_path)
+            elif manifest.get("specPath"):
+                try:
+                    spec_path = resolve_project_path(manifest["specPath"])
+                except HTTPException:
+                    spec_path = None
+        else:
+            spec_path = resolve_project_path(request.spec_path)
+            output_dir = SLIDES_OUTPUT_ROOT / job_id
+            manifest = render_deck(
+                str(spec_path),
+                str(output_dir),
+                template=request.template
+            )
+            slides_dir = Path(manifest["outputDir"])
+
+        archive_path = package_slide_deck(
+            str(slides_dir),
+            str(SLIDES_PACKAGE_ROOT),
+            spec_path=str(spec_path) if spec_path else None
+        )
+
+        file_size = archive_path.stat().st_size
+        total_duration = sum(slide["durationSec"] for slide in manifest["slides"])
+        resolution = f"{manifest['meta']['width']}x{manifest['meta']['height']}"
+
+        file_name = request.file_name
+        if not file_name.lower().endswith(".zip"):
+            file_name = f"{file_name}.zip"
+
+        asset_data = {
+            "fileName": file_name,
+            "filePath": str(archive_path),
+            "type": "slides",
+            "source": request.source,
+            "fileSize": file_size,
+            "mimeType": "application/zip",
+            "duration": int(total_duration),
+            "resolution": resolution,
+            "metadata": {
+                "slideCount": manifest["slideCount"],
+                "slidesDir": str(slides_dir),
+                "template": manifest["meta"].get("template"),
+                "theme": manifest["meta"].get("theme"),
+                "audio": manifest["meta"].get("audio"),
+                "specPath": str(spec_path) if spec_path else None,
+                "description": request.description or "",
+            },
+            "generationParams": {
+                "specPath": str(spec_path) if spec_path else None,
+                "template": manifest["meta"].get("template"),
+                "theme": manifest["meta"].get("theme"),
+                "slideCount": manifest["slideCount"],
+            },
+            "platform": "dynamic_slides",
+            "projectId": request.project_id,
+        }
+
+        async with httpx.AsyncClient() as client:
+            asset_response = await client.post(
+                f"{NEXTJS_API_BASE}/api/assets",
+                json=asset_data,
+                timeout=30.0
+            )
+
+            if asset_response.status_code not in [200, 201]:
+                raise HTTPException(
+                    status_code=asset_response.status_code,
+                    detail=f"Failed to create asset: {asset_response.text}"
+                )
+
+            asset = asset_response.json()
+
+        return {
+            "status": "success",
+            "asset": asset,
+            "archive_path": str(archive_path),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Save slides failed: {str(e)}")
 
 
 @app.post("/api/video/generate")

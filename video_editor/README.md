@@ -72,10 +72,12 @@ FastAPI 経由で `slides/spec.yml` を読み取り、Node の `satori` + `@resv
 ### API
 
 - `POST /api/slides/render`
+- `POST /api/slides/save-to-library`
 - `POST /api/video/generate` (`dynamic_slides: true`)
 
 ### 出力
 
 - `out/slides/<job_id>/*.png`
 - `out/slides/<job_id>/deck.json`
+- `out/slides_packages/<job_id>.zip`
 - `out/video_<job_id>.mp4`

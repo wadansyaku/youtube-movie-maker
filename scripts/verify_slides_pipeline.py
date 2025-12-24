@@ -13,6 +13,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIR))
 
 from video_editor.utils.slides import render_deck  # noqa: E402
+from video_editor.utils.slides_exporter import package_slide_deck  # noqa: E402
 from video_editor.utils.video_generator import generate_video_from_slides  # noqa: E402
 
 
@@ -43,12 +44,23 @@ def main() -> int:
         audio_path=result.get("meta", {}).get("audio")
     )
 
+    archive_path = package_slide_deck(
+        str(slides_dir),
+        str(ROOT_DIR / "out" / "slides_packages"),
+        spec_path=str(spec_path),
+    )
+
     if not video_path.exists():
         print("Video output not found")
         return 1
 
+    if not archive_path.exists():
+        print("Slides archive not found")
+        return 1
+
     print(f"Slides: {slides_dir}")
     print(f"Video: {video_path}")
+    print(f"Archive: {archive_path}")
     return 0
 
 
