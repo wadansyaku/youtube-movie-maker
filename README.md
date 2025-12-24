@@ -65,6 +65,7 @@ npm run dev
 1. `slides/spec.yml` を編集
 2. 動画エディタ画面で `Dynamic Slides` を ON
 3. `Generate Slides` → `Generate Video` の順に実行
+4. 必要なら「スライドデッキを保存」でZIPをAsset Libraryへ保存
 
 ### 使い方（CLI）
 
@@ -96,6 +97,7 @@ slides:
 
 - `out/slides/<job_id>/*.png`
 - `out/slides/<job_id>/deck.json`
+- `out/slides_packages/<job_id>.zip`
 - `out/video_<job_id>.mp4`
 
 ### 検証
