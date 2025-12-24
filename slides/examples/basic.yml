@@ -1,0 +1,17 @@
+meta:
+  width: 1920
+  height: 1080
+  theme: light
+  template: centered
+  slideDuration: 6
+slides:
+  - title: "What This App Does"
+    bullets:
+      - "Parse YAML/JSON slides"
+      - "Render SVG with Satori"
+      - "Export PNG + MP4"
+  - title: "Second Slide"
+    bullets:
+      - "Override duration per slide"
+      - "Add images when needed"
+    durationSec: 4

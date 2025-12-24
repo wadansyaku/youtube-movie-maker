@@ -1,0 +1,17 @@
+meta:
+  width: 1920
+  height: 1080
+  theme: dark
+  template: classic
+  slideDuration: 5
+slides:
+  - title: "Dynamic Slides 入門"
+    bullets:
+      - "YAML/JSON から自動生成"
+      - "SVG → PNG → 動画合成"
+      - "人間の意図は Decision Log に記録"
+  - title: "使い方"
+    bullets:
+      - "slides/spec.yml を編集"
+      - "Dynamic Slides で Generate Slides"
+      - "Generate Video で mp4 を出力"
