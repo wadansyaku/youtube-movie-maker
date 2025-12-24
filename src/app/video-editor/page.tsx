@@ -100,6 +100,7 @@ export default function VideoEditorPage() {
     const [slideTemplate, setSlideTemplate] = useState("classic");
     const [renderedSlides, setRenderedSlides] = useState<RenderedSlide[]>([]);
     const [slidesOutputDir, setSlidesOutputDir] = useState<string | null>(null);
+    const [saveTarget, setSaveTarget] = useState<"video" | "slides">("video");
 
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -212,7 +213,7 @@ export default function VideoEditorPage() {
             if ((e.ctrlKey || e.metaKey) && e.code === "KeyS") {
                 e.preventDefault();
                 if (editedVideoPath) {
-                    openSaveModal();
+                    openSaveModal(mode === "slides" ? "slides" : "video");
                 }
             }
         };
@@ -646,7 +647,7 @@ export default function VideoEditorPage() {
     };
 
     // Save to Library
-    const handleSaveToLibrary = async () => {
+    const handleSaveVideoToLibrary = async () => {
         if (!editedVideoPath || !saveFileName.trim()) {
             setError("ファイル名を入力してください");
             return;
@@ -691,15 +692,63 @@ export default function VideoEditorPage() {
         }
     };
 
+    const handleSaveSlidesToLibrary = async () => {
+        if (!saveFileName.trim()) {
+            setError("ファイル名を入力してください");
+            return;
+        }
+
+        if (!slidesSpecPath.trim() && !slidesOutputDir) {
+            setError("spec.yml のパスを入力してください");
+            return;
+        }
+
+        setStatus("saving");
+        setError(null);
+        setProgress(50);
+        setShowSaveModal(false);
+
+        try {
+            const res = await fetch(`${API_BASE}/api/slides/save-to-library`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    file_name: saveFileName,
+                    slides_dir: slidesOutputDir || undefined,
+                    spec_path: slidesSpecPath || undefined,
+                    template: slideTemplate,
+                    project_id: selectedProjectId || undefined,
+                    source: "dynamic_slides",
+                    description: `slides_spec: ${slidesSpecPath}`,
+                }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || "Save failed");
+            }
+
+            setProgress(100);
+            setSuccessMessage(`スライドデッキを保存しました${selectedProjectId ? " (プロジェクトにリンク済み)" : ""}`);
+            setStatus("idle");
+            setSaveFileName("");
+            setSelectedProjectId("");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Save to library failed");
+            setStatus("idle");
+        }
+    };
+
     // Open save modal
-    const openSaveModal = () => {
+    const openSaveModal = (target: "video" | "slides" = "video") => {
         // Generate default filename
         const date = new Date().toISOString().slice(0, 10);
-        const defaultName = mode === "edit"
-            ? `edited_${videoInfo?.filename?.replace(/\.[^/.]+$/, "") || "video"}_${date}.mp4`
-            : mode === "slides"
-                ? `slides_${date}.mp4`
+        const defaultName = target === "slides"
+            ? `slides_${date}.zip`
+            : mode === "edit"
+                ? `edited_${videoInfo?.filename?.replace(/\.[^/.]+$/, "") || "video"}_${date}.mp4`
                 : `generated_${date}.mp4`;
+        setSaveTarget(target);
         setSaveFileName(defaultName);
         setShowSaveModal(true);
     };
@@ -990,7 +1039,7 @@ export default function VideoEditorPage() {
                                 ダウンロード
                             </button>
                             <button
-                                onClick={openSaveModal}
+                                onClick={() => openSaveModal("video")}
                                 disabled={isProcessing}
                                 className="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg flex items-center justify-center gap-2 transition-colors"
                             >
@@ -1188,6 +1237,17 @@ export default function VideoEditorPage() {
                                         `slides/examples/basic.yml` をコピーして始められます。
                                     </div>
                                 )}
+
+                                {renderedSlides.length > 0 && (
+                                    <button
+                                        onClick={() => openSaveModal("slides")}
+                                        disabled={isProcessing}
+                                        className="w-full py-3 px-4 bg-indigo-700/70 hover:bg-indigo-600/80 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg flex items-center justify-center gap-2 transition-colors"
+                                    >
+                                        <FolderPlus className="w-5 h-5" />
+                                        スライドデッキを保存
+                                    </button>
+                                )}
                             </div>
                         </>
                     )}
@@ -1307,7 +1367,9 @@ export default function VideoEditorPage() {
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold">ライブラリに保存</h2>
-                                <p className="text-gray-400 text-sm">素材ライブラリにAssetとして登録</p>
+                                <p className="text-gray-400 text-sm">
+                                    {saveTarget === "slides" ? "スライドデッキをAssetとして登録" : "素材ライブラリにAssetとして登録"}
+                                </p>
                             </div>
                         </div>
 
@@ -1321,7 +1383,7 @@ export default function VideoEditorPage() {
                                     type="text"
                                     value={saveFileName}
                                     onChange={(e) => setSaveFileName(e.target.value)}
-                                    placeholder="video_name.mp4"
+                                    placeholder={saveTarget === "slides" ? "slides_deck.zip" : "video_name.mp4"}
                                     className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
                                 />
                             </div>
@@ -1360,7 +1422,7 @@ export default function VideoEditorPage() {
                                 キャンセル
                             </button>
                             <button
-                                onClick={handleSaveToLibrary}
+                                onClick={saveTarget === "slides" ? handleSaveSlidesToLibrary : handleSaveVideoToLibrary}
                                 disabled={!saveFileName.trim()}
                                 className="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg flex items-center justify-center gap-2 transition-colors"
                             >
