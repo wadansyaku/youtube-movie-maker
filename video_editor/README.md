@@ -62,3 +62,20 @@ sudo apt install ffmpeg
 - **音声認識**: faster-whisper
 - **音声合成**: gTTS
 - **データ処理**: Pandas
+
+---
+
+## Dynamic Slides (YAML/JSON → PNG → MP4)
+
+FastAPI 経由で `slides/spec.yml` を読み取り、Node の `satori` + `@resvg/resvg-js` で PNG を生成します。
+
+### API
+
+- `POST /api/slides/render`
+- `POST /api/video/generate` (`dynamic_slides: true`)
+
+### 出力
+
+- `out/slides/<job_id>/*.png`
+- `out/slides/<job_id>/deck.json`
+- `out/video_<job_id>.mp4`
