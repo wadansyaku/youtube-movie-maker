@@ -432,7 +432,9 @@ export async function renderDeck({ specPath, outputDir, emitSvg = false, templat
     meta,
     outputDir,
     slideCount: slides.length,
-    slides
+    slides,
+    specPath: spec.specPath,
+    generatedAt: new Date().toISOString()
   };
 
   fs.writeFileSync(

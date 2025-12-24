@@ -49,6 +49,8 @@ test("renderDeck writes png and manifest", async () => {
   const manifestPath = path.join(outputDir, "deck.json");
   assert.ok(fs.existsSync(manifestPath));
   assert.equal(result.slideCount, 1);
+  assert.ok(result.specPath);
+  assert.ok(result.generatedAt);
 
   const slidePath = result.slides[0].pngPath;
   assert.ok(fs.existsSync(slidePath));
