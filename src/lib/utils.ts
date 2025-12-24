@@ -63,6 +63,7 @@ export function getAssetTypeIcon(type: string): string {
         image: '🖼️',
         script: '📝',
         thumbnail: '🎨',
+        slides: '🧩',
     };
     return icons[type] || '📄';
 }

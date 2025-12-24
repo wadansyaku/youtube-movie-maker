@@ -10,7 +10,7 @@ interface AssetMetadataFormProps {
     onSubmit: (data: AssetMetadata) => Promise<void>;
     initialData?: Partial<AssetMetadata>;
     mode?: "create" | "edit";
-    assetType?: "video" | "audio" | "image" | "other";
+    assetType?: "video" | "audio" | "image" | "slides" | "other";
 }
 
 interface AssetMetadata {
@@ -32,6 +32,7 @@ const platformOptions = [
     { value: "sora", label: "OpenAI Sora", models: ["Sora 2", "Sora 1.1"] },
     { value: "veo", label: "Google Veo", models: ["Veo 3.1", "Veo 3", "Veo 2"] },
     { value: "suno", label: "Suno", models: ["V4.5", "V4", "V3.5"] },
+    { value: "dynamic_slides", label: "Dynamic Slides", models: [] },
     { value: "manual", label: "Manual / External", models: [] },
 ];
 

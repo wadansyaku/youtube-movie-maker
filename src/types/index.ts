@@ -75,7 +75,7 @@ export interface Asset {
     updatedAt: string | Date;
 }
 
-export type AssetType = 'video' | 'audio' | 'image' | 'script' | 'thumbnail';
+export type AssetType = 'video' | 'audio' | 'image' | 'script' | 'thumbnail' | 'slides';
 export type AssetSource =
     | 'manual'
     | 'runway'
@@ -83,6 +83,7 @@ export type AssetSource =
     | 'veo'
     | 'suno'
     | 'video_editor'
+    | 'dynamic_slides'
     | 'stability'
     | 'luma'
     | 'kling'

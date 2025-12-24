@@ -14,6 +14,7 @@ import {
     FileVideo,
     Music,
     Image as ImageIcon,
+    FileText,
     MoreVertical,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -56,6 +57,7 @@ const platformOptions = [
     { value: "sora", label: "Sora", color: "bg-cyan-500/20 text-cyan-400" },
     { value: "veo", label: "Veo", color: "bg-red-500/20 text-red-400" },
     { value: "suno", label: "Suno", color: "bg-orange-500/20 text-orange-400" },
+    { value: "dynamic_slides", label: "Dynamic Slides", color: "bg-indigo-500/20 text-indigo-400" },
     { value: "manual", label: "Manual", color: "bg-gray-500/20 text-gray-400" },
 ];
 
@@ -63,6 +65,7 @@ const typeIcons: Record<string, React.ReactNode> = {
     video: <FileVideo size={16} className="text-blue-400" />,
     audio: <Music size={16} className="text-green-400" />,
     image: <ImageIcon size={16} className="text-amber-400" />,
+    slides: <FileText size={16} className="text-indigo-400" />,
 };
 
 export default function RunsPage() {

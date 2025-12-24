@@ -9,6 +9,7 @@ import {
     Image as ImageIcon,
     FileVideo,
     Music,
+    FileText,
     MoreVertical,
     Eye,
     Download,
@@ -60,6 +61,7 @@ const typeIcons: Record<string, React.ReactNode> = {
     video: <FileVideo size={20} className="text-blue-400" />,
     audio: <Music size={20} className="text-green-400" />,
     image: <ImageIcon size={20} className="text-amber-400" />,
+    slides: <FileText size={20} className="text-indigo-400" />,
 };
 
 const sourceLabels: Record<string, { label: string; color: string }> = {
@@ -67,6 +69,7 @@ const sourceLabels: Record<string, { label: string; color: string }> = {
     sora: { label: "Sora", color: "bg-cyan-500/20 text-cyan-400" },
     veo: { label: "Veo", color: "bg-red-500/20 text-red-400" },
     suno: { label: "Suno", color: "bg-orange-500/20 text-orange-400" },
+    dynamic_slides: { label: "Dynamic Slides", color: "bg-indigo-500/20 text-indigo-400" },
     manual: { label: "Manual", color: "bg-gray-500/20 text-gray-400" },
 };
 
@@ -232,6 +235,7 @@ export default function AssetLibrary({
                         <option value="video">Video</option>
                         <option value="audio">Audio</option>
                         <option value="image">Image</option>
+                        <option value="slides">Slides</option>
                     </select>
                     <select
                         value={sourceFilter || ""}
@@ -243,6 +247,7 @@ export default function AssetLibrary({
                         <option value="sora">Sora</option>
                         <option value="veo">Veo</option>
                         <option value="suno">Suno</option>
+                        <option value="dynamic_slides">Dynamic Slides</option>
                         <option value="manual">Manual</option>
                     </select>
                 </div>

@@ -149,6 +149,7 @@ export function getContentType(fileName: string): string {
         // Other
         json: "application/json",
         pdf: "application/pdf",
+        zip: "application/zip",
     };
 
     return contentTypes[ext || ""] || "application/octet-stream";
@@ -188,15 +189,17 @@ export function validateFileType(
 /**
  * Get asset type from file extension
  */
-export function getAssetType(fileName: string): "video" | "audio" | "image" | "other" {
+export function getAssetType(fileName: string): "video" | "audio" | "image" | "slides" | "other" {
     const ext = fileName.split(".").pop()?.toLowerCase();
 
     const videoExts = ["mp4", "webm", "mov", "avi", "mkv"];
     const audioExts = ["mp3", "wav", "ogg", "m4a", "flac"];
     const imageExts = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
+    const slideExts = ["zip"];
 
     if (videoExts.includes(ext || "")) return "video";
     if (audioExts.includes(ext || "")) return "audio";
     if (imageExts.includes(ext || "")) return "image";
+    if (slideExts.includes(ext || "")) return "slides";
     return "other";
 }

@@ -12,6 +12,7 @@ import {
     FileVideo,
     Music,
     Image as ImageIcon,
+    FileText,
     History,
     MessageSquare,
     CheckCircle,
@@ -99,6 +100,7 @@ const typeIcons: Record<string, React.ReactNode> = {
     video: <FileVideo size={24} className="text-blue-400" />,
     audio: <Music size={24} className="text-green-400" />,
     image: <ImageIcon size={24} className="text-amber-400" />,
+    slides: <FileText size={24} className="text-indigo-400" />,
 };
 
 const platformColors: Record<string, string> = {
@@ -106,6 +108,7 @@ const platformColors: Record<string, string> = {
     sora: "bg-cyan-500/20 text-cyan-400",
     veo: "bg-red-500/20 text-red-400",
     suno: "bg-orange-500/20 text-orange-400",
+    dynamic_slides: "bg-indigo-500/20 text-indigo-400",
     manual: "bg-gray-500/20 text-gray-400",
 };
 

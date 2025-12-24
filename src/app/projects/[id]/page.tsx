@@ -15,6 +15,7 @@ import {
     Image,
     Music,
     FileVideo,
+    FileText,
 } from "lucide-react";
 import SceneHierarchy from "@/components/project/SceneHierarchy";
 import ProjectForm from "@/components/project/ProjectForm";
@@ -181,6 +182,8 @@ export default function ProjectDetailPage({
                 return <Music size={16} className="text-green-400" />;
             case "image":
                 return <Image size={16} className="text-amber-400" />;
+            case "slides":
+                return <FileText size={16} className="text-indigo-400" />;
             default:
                 return <Film size={16} className="text-gray-400" />;
         }

@@ -18,6 +18,7 @@ import {
     FileVideo,
     Image as ImageIcon,
     Music,
+    FileText,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -84,6 +85,7 @@ const typeIcons: Record<string, React.ReactNode> = {
     video: <FileVideo size={16} className="text-blue-400" />,
     audio: <Music size={16} className="text-green-400" />,
     image: <ImageIcon size={16} className="text-amber-400" />,
+    slides: <FileText size={16} className="text-indigo-400" />,
 };
 
 const revisionTemplates = [
