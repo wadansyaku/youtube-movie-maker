@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "version": "1.0",
+    "description": "World Bible テンプレート - シリーズの世界観を定義",
+    "visualStyle": {
+        "colorPalette": [
+            "#1a1a2e",
+            "#16213e",
+            "#0f3460",
+            "#e94560"
+        ],
+        "lightingStyle": "cinematic-low-key",
+        "cameraStyle": "slow-pan-closeup",
+        "aspectRatio": "16:9",
+        "referenceImages": [],
+        "runwayWorkflow": "gen3-alpha-turbo",
+        "notes": ""
+    },
+    "audioStyle": {
+        "genre": "ambient-electronic",
+        "tempo": "moderate",
+        "mood": "mysterious-atmospheric",
+        "instruments": [
+            "synth-pad",
+            "piano",
+            "ambient-textures"
+        ],
+        "sunoStyle": "instrumental",
+        "notes": ""
+    },
+    "characters": [
+        {
+            "name": "キャラクター名",
+            "description": "キャラクターの説明",
+            "visualTraits": "外見の特徴",
+            "voiceStyle": "声のトーン",
+            "promptKeywords": [
+                "keyword1",
+                "keyword2"
+            ]
+        }
+    ],
+    "settings": [
+        {
+            "name": "舞台名",
+            "description": "舞台の説明",
+            "visualDescription": "ビジュアル詳細",
+            "promptKeywords": [
+                "keyword1",
+                "keyword2"
+            ]
+        }
+    ],
+    "rules": {
+        "mustInclude": [
+            "シリーズロゴ/ウォーターマーク",
+            "一貫したカラーパレット",
+            "オープニング/エンディングパターン"
+        ],
+        "mustAvoid": [
+            "実在人物の肖像",
+            "著作権のある素材",
+            "商標・ブランドロゴ"
+        ],
+        "styleGuidelines": [
+            "ナレーションは落ち着いたトーン",
+            "テンポは視聴者の理解を優先"
+        ]
+    }
+}

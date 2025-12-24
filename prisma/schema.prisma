@@ -1,0 +1,470 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data/ymm.db"
+}
+
+// ============================================
+// Core Models
+// ============================================
+
+model Series {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  status      String    @default("draft") // draft, active, archived
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  worldBible   WorldBible?
+  episodes     Episode[]
+  promptPacks  PromptPack[]
+  generationRuns GenerationRun[]
+}
+
+model WorldBible {
+  id          String   @id @default(uuid())
+  seriesId    String   @unique
+  visualStyle String   @default("{}") // JSON
+  audioStyle  String   @default("{}") // JSON
+  characters  String   @default("[]") // JSON array
+  settings    String   @default("[]") // JSON array
+  rules       String   @default("{}") // JSON
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  series Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+}
+
+model Episode {
+  id            String    @id @default(uuid())
+  seriesId      String
+  episodeNumber Int?
+  title         String
+  synopsis      String?
+  status        String    @default("draft") // planning, draft, in_progress, review, ready, published
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  publishedAt   DateTime?
+
+  // Relations
+  series        Series         @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  decisionLog   DecisionLog?
+  episodeAssets EpisodeAsset[]
+  scenes        Scene[]
+  generationRuns GenerationRun[]
+
+  @@unique([seriesId, episodeNumber])
+}
+
+model DecisionLog {
+  id                    String   @id @default(uuid())
+  episodeId             String   @unique
+  editorialIntent       String   // Required: min 50 chars
+  differentiationPoints String?
+  humanContributions    String   // Required: min 100 chars
+  aiToolUsage           String   @default("{}") // JSON
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// Asset Management
+// ============================================
+
+model Asset {
+  id               String   @id @default(uuid())
+  type             String   // video, audio, image, script, thumbnail
+  fileName         String
+  filePath         String
+  fileSize         Int?
+  mimeType         String?
+  duration         Float?   // For video/audio in seconds
+  resolution       String?  // 1920x1080, 3840x2160, etc.
+  metadata         String   @default("{}") // JSON - general metadata
+  source           String   @default("manual") // manual, runway, sora, veo, suno
+  generationParams String   @default("{}") // JSON - AI generation parameters
+  version          Int      @default(1)
+  parentAssetId    String?
+  status           String   @default("active") // active, archived, deleted
+  licenseType      String?  // commercial, non-commercial, cc-by, etc.
+  creditRequired   String?  // Credit attribution text if required
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  episodeAssets   EpisodeAsset[]
+  assetTags       AssetTag[]
+  parentAsset     Asset?          @relation("AssetVersions", fields: [parentAssetId], references: [id])
+  childVersions   Asset[]         @relation("AssetVersions")
+  shotAssets      ShotAsset[]
+  projectAssets   ProjectAsset[]
+  generationRuns  GenerationRun[]
+  reviews         Review[]
+  heroForShots    Shot[]          @relation("ShotHeroAsset")
+}
+
+model Tag {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  color     String     @default("#6366f1")
+  createdAt DateTime   @default(now())
+
+  // Relations
+  assetTags AssetTag[]
+}
+
+model AssetTag {
+  assetId String
+  tagId   String
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([assetId, tagId])
+}
+
+model EpisodeAsset {
+  episodeId  String
+  assetId    String
+  role       String?  // opening, main, ending, bgm, sfx, etc.
+  orderIndex Int      @default(0)
+  notes      String?
+
+  episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@id([episodeId, assetId])
+}
+
+// ============================================
+// Prompt Management
+// ============================================
+
+model PromptPack {
+  id        String   @id @default(uuid())
+  seriesId  String
+  name      String
+  category  String   @default("general") // visual, audio, narrative, general
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  series  Series   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  prompts Prompt[]
+}
+
+model Prompt {
+  id           String     @id @default(uuid())
+  promptPackId String
+  type         String     // "visual", "audio", "narrative"
+  name         String
+  content      String
+  variables    String     // JSON array of variable names
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  promptPack   PromptPack @relation(fields: [promptPackId], references: [id], onDelete: Cascade)
+}
+
+model SystemSettings {
+  key   String @id
+  value String
+}
+
+// ============================================
+// CreativeFlow Studio - User Management
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  role          String    @default("viewer") // admin, editor, viewer
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  projects       Project[]
+  reviews        Review[]
+  exports        Export[]
+  auditLogs      AuditLog[]
+  accounts       Account[]
+  sessions       Session[]
+  notifications  Notification[]
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================
+// CreativeFlow Studio - Project Hierarchy
+// ============================================
+
+model Project {
+  id                    String   @id @default(uuid())
+  name                  String
+  description           String?
+  status                String   @default("draft") // draft, in_progress, review, completed
+  targetDurationSeconds Int?
+  aspectRatio           String?  // 16:9, 9:16, 1:1
+  createdById           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  createdBy      User?          @relation(fields: [createdById], references: [id])
+  scenes         Scene[]
+  referenceSets  ReferenceSet[]
+  exports        Export[]
+  projectAssets  ProjectAsset[]
+}
+
+model Scene {
+  id              String   @id @default(uuid())
+  projectId       String?
+  episodeId       String?
+  name            String
+  orderIndex      Int
+  description     String?
+  durationSeconds Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  episode Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  shots   Shot[]
+}
+
+model Shot {
+  id              String   @id @default(uuid())
+  sceneId         String
+  name            String
+  orderIndex      Int
+  description     String?
+  durationSeconds Int?
+  cameraMovement  String?  // pan, tilt, zoom, static, dolly, crane
+  heroAssetId     String?  // ID of the selected hero asset for this shot
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  scene      Scene       @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+  shotAssets ShotAsset[]
+  heroAsset  Asset?      @relation("ShotHeroAsset", fields: [heroAssetId], references: [id])
+}
+
+model ShotAsset {
+  shotId  String
+  assetId String
+  role    String? // main, overlay, background
+  notes   String?
+
+  shot  Shot  @relation(fields: [shotId], references: [id], onDelete: Cascade)
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@id([shotId, assetId])
+}
+
+model ProjectAsset {
+  projectId String
+  assetId   String
+  role      String? // hero, supporting, bgm, sfx
+  notes     String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, assetId])
+}
+
+// ============================================
+// CreativeFlow Studio - Reference Management
+// ============================================
+
+model ReferenceSet {
+  id          String   @id @default(uuid())
+  projectId   String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  items   ReferenceItem[]
+}
+
+model ReferenceItem {
+  id             String   @id @default(uuid())
+  referenceSetId String
+  filePath       String?
+  externalUrl    String?
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  referenceSet ReferenceSet @relation(fields: [referenceSetId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// CreativeFlow Studio - Generation Tracking
+// ============================================
+
+model GenerationRun {
+  id                    String   @id @default(uuid())
+  assetId               String
+  seriesId              String?
+  episodeId             String?
+  platform              String   // runway, sora, veo, suno, manual
+  modelVersion          String?
+  prompt                String?
+  negativePrompt        String?
+  parameters            String   @default("{}") // JSON - seed, cfg_scale, etc.
+  externalJobId         String?
+  externalUrl           String?  // Link to external platform
+  status                String   @default("completed") // pending, processing, completed, failed
+  costCredits           Float?
+  costUsd               Float?   // Cost in USD
+  generationTimeSeconds Int?
+  createdAt             DateTime @default(now())
+
+  // Relations
+  asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  series  Series? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  episode Episode? @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+
+  @@index([seriesId])
+  @@index([episodeId])
+}
+
+// ============================================
+// CreativeFlow Studio - Review System
+// ============================================
+
+model Review {
+  id               String   @id @default(uuid())
+  assetId          String
+  reviewerId       String
+  status           String   @default("pending") // pending, approved, rejected, revision_requested
+  feedback         String?
+  revisionTemplate String?  // Pre-defined revision reason template
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  asset       Asset              @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  reviewer    User               @relation(fields: [reviewerId], references: [id])
+  annotations ReviewAnnotation[]
+}
+
+model ReviewAnnotation {
+  id            String   @id @default(uuid())
+  reviewId      String
+  timecodeStart Float?
+  timecodeEnd   Float?
+  xPosition     Float?
+  yPosition     Float?
+  comment       String
+  createdAt     DateTime @default(now())
+
+  // Relations
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// CreativeFlow Studio - Export Management
+// ============================================
+
+model Export {
+  id             String   @id @default(uuid())
+  projectId      String
+  outputFormat   String?  // mp4, mov, wav, mp3
+  resolution     String?  // 1080p, 4k, etc.
+  filePath       String?
+  status         String   @default("pending") // pending, processing, completed, failed
+  exportedById   String?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  exportedBy User?   @relation(fields: [exportedById], references: [id])
+}
+
+// ============================================
+// CreativeFlow Studio - Audit Logging
+// ============================================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String   // create, update, delete, export, review
+  entityType String   // project, scene, shot, asset, review
+  entityId   String?
+  oldValues  String?  // JSON
+  newValues  String?  // JSON
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   // info, success, warning, error, review_request, review_update
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

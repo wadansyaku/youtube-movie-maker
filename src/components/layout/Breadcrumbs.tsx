@@ -1,0 +1,62 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ChevronRight, Home } from "lucide-react";
+
+const routeLabels: Record<string, string> = {
+    dashboard: "ダッシュボード",
+    projects: "プロジェクト",
+    series: "シリーズ",
+    episodes: "エピソード",
+    assets: "素材ライブラリ",
+    runs: "生成ジョブ",
+    prompts: "プロンプト",
+    reviews: "レビュー",
+    exports: "エクスポート",
+    scenes: "シーン",
+    shots: "ショット",
+    settings: "設定",
+};
+
+export default function Breadcrumbs() {
+    const pathname = usePathname();
+
+    // Skip on dashboard
+    if (pathname === "/dashboard" || pathname === "/") return null;
+
+    const pathSegments = pathname.split("/").filter((segment) => segment);
+
+    return (
+        <nav className="flex items-center text-sm text-gray-400 mb-6">
+            <Link
+                href="/dashboard"
+                className="flex items-center hover:text-white transition-colors"
+            >
+                <Home size={16} />
+            </Link>
+
+            {pathSegments.map((segment, index) => {
+                const href = `/${pathSegments.slice(0, index + 1).join("/")}`;
+                const isLast = index === pathSegments.length - 1;
+                const label = routeLabels[segment] || (segment.length > 20 ? segment.substring(0, 8) + "..." : segment);
+
+                return (
+                    <div key={href} className="flex items-center">
+                        <ChevronRight size={14} className="mx-2 text-gray-600" />
+                        {isLast ? (
+                            <span className="text-white font-medium">{label}</span>
+                        ) : (
+                            <Link
+                                href={href}
+                                className="hover:text-white transition-colors"
+                            >
+                                {label}
+                            </Link>
+                        )}
+                    </div>
+                );
+            })}
+        </nav>
+    );
+}

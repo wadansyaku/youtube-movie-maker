@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 15, 15, 20;
+  --background-end-rgb: 22, 33, 62;
+
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 16px;
+
+  /* Colors */
+  --muted: #94a3b8;
+  --card-bg: #161620;
+  --card-border: #2a2a3a;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #0f0f14;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+/* Better Japanese Text Handling */
+.jp-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  /* text-wrap: balance; (Optional, modern browsers only) */
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 767px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  .mobile-full {
+    width: 100% !important;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
+
+  .mobile-p-4 {
+    padding: 1rem !important;
+  }
+
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}
+
+@layer components {
+
+  /* Glass Card */
+  /* Glass Card */
+  .glass {
+    transition: all 0.2s ease;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+  }
+
+  .card {
+    @apply bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xl;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: var(--card-bg);
+    color: var(--foreground);
+    border: 1px solid var(--card-border);
+  }
+
+  .btn-secondary:hover {
+    background: #2a2a3a;
+    border-color: #3a3a4a;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+  }
+
+  /* Input styles */
+  .input {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--foreground);
+    transition: all 0.2s ease;
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+
+  .input::placeholder {
+    color: var(--muted);
+  }
+
+  /* Textarea styles */
+  .textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--foreground);
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.2s ease;
+  }
+
+  .textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+
+  /* Badge styles */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+  }
+
+  .badge-success {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+  }
+
+  .badge-warning {
+    background: rgba(234, 179, 8, 0.2);
+    color: #fde047;
+  }
+
+  .badge-danger {
+    background: rgba(244, 63, 94, 0.2);
+    color: #fda4af;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .status-draft {
+    background: #71717a;
+  }
+
+  .status-active {
+    background: #22c55e;
+  }
+
+  .status-review {
+    background: #eab308;
+  }
+
+  .status-published {
+    background: #6366f1;
+  }
+}

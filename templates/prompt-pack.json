@@ -1,0 +1,83 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "version": "1.0",
+    "description": "PromptPack テンプレート - Runway/Suno用プロンプト集",
+    "name": "Default PromptPack",
+    "category": "general",
+    "prompts": {
+        "runway": {
+            "basePrompt": {
+                "description": "Runway Gen-3 Alpha用の基本プロンプト",
+                "template": "{{scene_description}}, {{visual_style}}, cinematic lighting, high quality, 4K",
+                "variables": [
+                    "scene_description",
+                    "visual_style"
+                ],
+                "workflow": "gen3-alpha-turbo"
+            },
+            "cameraMovements": [
+                "slow pan right revealing {{subject}}",
+                "dolly zoom on {{subject}}",
+                "tracking shot following {{subject}}",
+                "static wide shot of {{scene}}"
+            ],
+            "styleModifiers": [
+                "film grain, vintage look",
+                "clean, modern aesthetics",
+                "dramatic shadows, noir style",
+                "soft, dreamy atmosphere"
+            ]
+        },
+        "suno": {
+            "baseStyle": {
+                "description": "Suno用の基本スタイル指定",
+                "template": "{{genre}}, {{mood}}, {{tempo}} BPM, {{instruments}}",
+                "variables": [
+                    "genre",
+                    "mood",
+                    "tempo",
+                    "instruments"
+                ]
+            },
+            "genres": [
+                "ambient electronic",
+                "cinematic orchestral",
+                "lo-fi hip hop",
+                "epic trailer music"
+            ],
+            "moodKeywords": [
+                "mysterious, atmospheric",
+                "uplifting, inspiring",
+                "tense, suspenseful",
+                "peaceful, relaxing"
+            ],
+            "lyricsTemplate": {
+                "description": "歌詞テンプレート（ボーカル曲用）",
+                "structure": "[Verse 1]\n{{verse1}}\n\n[Chorus]\n{{chorus}}\n\n[Verse 2]\n{{verse2}}\n\n[Chorus]\n{{chorus}}"
+            }
+        },
+        "narrative": {
+            "scriptTemplate": {
+                "description": "ナレーション台本テンプレート",
+                "structure": "【シーン{{scene_number}}】\n\n[映像指示]\n{{visual_direction}}\n\n[ナレーション]\n{{narration}}\n\n[音楽/効果音]\n{{audio_notes}}"
+            },
+            "toneGuidelines": [
+                "落ち着いた解説調",
+                "ドラマチックなストーリーテリング",
+                "フレンドリーなトーク調"
+            ]
+        }
+    },
+    "usage": {
+        "howToUse": [
+            "1. 変数（{{variable_name}}）を実際の値に置き換える",
+            "2. World Bibleのスタイルと一貫性を確認",
+            "3. 生成後、DecisionLogに使用したプロンプトを記録"
+        ],
+        "bestPractices": [
+            "シリーズ内で同じプロンプトパターンを再利用",
+            "成功したプロンプトはテンプレートとして保存",
+            "AI出力は必ず人間がレビュー・編集"
+        ]
+    }
+}
