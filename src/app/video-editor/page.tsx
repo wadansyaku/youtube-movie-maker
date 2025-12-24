@@ -44,6 +44,14 @@ interface VideoInfo {
     fps: number;
 }
 
+interface RenderedSlide {
+    index: number;
+    title: string;
+    durationSec: number;
+    pngPath: string;
+    svgPath?: string | null;
+}
+
 interface Project {
     id: string;
     name: string;
@@ -61,8 +69,8 @@ interface Shot {
     orderIndex: number;
 }
 
-type EditorMode = "edit" | "generate";
-type ProcessingStatus = "idle" | "uploading" | "transcribing" | "editing" | "generating" | "removing-silence" | "saving" | "improving";
+type EditorMode = "edit" | "generate" | "slides";
+type ProcessingStatus = "idle" | "uploading" | "transcribing" | "editing" | "generating" | "rendering-slides" | "removing-silence" | "saving" | "improving";
 
 // Helper function to format time
 const formatTime = (seconds: number): string => {
@@ -87,6 +95,11 @@ export default function VideoEditorPage() {
     // Script state
     const [script, setScript] = useState("");
     const [language, setLanguage] = useState("ja");
+    const [dynamicSlidesEnabled, setDynamicSlidesEnabled] = useState(false);
+    const [slidesSpecPath, setSlidesSpecPath] = useState("slides/spec.yml");
+    const [slideTemplate, setSlideTemplate] = useState("classic");
+    const [renderedSlides, setRenderedSlides] = useState<RenderedSlide[]>([]);
+    const [slidesOutputDir, setSlidesOutputDir] = useState<string | null>(null);
 
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -207,6 +220,28 @@ export default function VideoEditorPage() {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [segments, mode, editedVideoPath, handleUndo, handleRedo, pushToHistory]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("dynamicSlidesEnabled");
+        if (saved !== null) {
+            setDynamicSlidesEnabled(saved === "true");
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("dynamicSlidesEnabled", String(dynamicSlidesEnabled));
+    }, [dynamicSlidesEnabled]);
+
+    useEffect(() => {
+        setRenderedSlides([]);
+        setSlidesOutputDir(null);
+    }, [slidesSpecPath, slideTemplate]);
+
+    useEffect(() => {
+        if (!dynamicSlidesEnabled && mode === "slides") {
+            setMode("generate");
+        }
+    }, [dynamicSlidesEnabled, mode]);
 
     useEffect(() => {
         checkApiStatus();
@@ -521,6 +556,82 @@ export default function VideoEditorPage() {
         }
     };
 
+    const handleRenderSlides = async () => {
+        if (!slidesSpecPath.trim()) {
+            setError("spec.yml のパスを入力してください");
+            return;
+        }
+
+        setStatus("rendering-slides");
+        setError(null);
+        setProgress(20);
+
+        try {
+            const res = await fetch(`${API_BASE}/api/slides/render`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    spec_path: slidesSpecPath,
+                    template: slideTemplate,
+                    emit_svg: false,
+                }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || "Slide render failed");
+            }
+
+            const data = await res.json();
+            setRenderedSlides(data.slides || []);
+            setSlidesOutputDir(data.outputDir || null);
+            setProgress(100);
+            setSuccessMessage(`スライド生成完了: ${data.slideCount}枚`);
+            setStatus("idle");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Slide render failed");
+            setStatus("idle");
+        }
+    };
+
+    const handleGenerateSlidesVideo = async () => {
+        if (!slidesSpecPath.trim()) {
+            setError("spec.yml のパスを入力してください");
+            return;
+        }
+
+        setStatus("generating");
+        setError(null);
+        setProgress(20);
+
+        try {
+            const res = await fetch(`${API_BASE}/api/video/generate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    dynamic_slides: true,
+                    slides_spec_path: slidesSpecPath,
+                    slides_dir: slidesOutputDir || undefined,
+                    template: slideTemplate,
+                }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || "Generation failed");
+            }
+
+            const data = await res.json();
+            setEditedVideoPath(data.output_path);
+            setProgress(100);
+            setSuccessMessage(`動画生成完了: ${data.duration.toFixed(1)}秒`);
+            setStatus("idle");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Generation failed");
+            setStatus("idle");
+        }
+    };
+
     // Download
     const handleDownload = async () => {
         if (!editedVideoPath) return;
@@ -528,7 +639,7 @@ export default function VideoEditorPage() {
         const downloadUrl = `${API_BASE}/api/video/serve?path=${encodeURIComponent(editedVideoPath)}`;
         const a = document.createElement("a");
         a.href = downloadUrl;
-        a.download = "edited_video.mp4";
+        a.download = mode === "slides" ? "slides_video.mp4" : "edited_video.mp4";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -555,7 +666,11 @@ export default function VideoEditorPage() {
                     file_name: saveFileName.endsWith(".mp4") ? saveFileName : `${saveFileName}.mp4`,
                     project_id: selectedProjectId || undefined,
                     source: "video_editor",
-                    description: mode === "generate" ? script.substring(0, 200) : undefined,
+                    description: mode === "generate"
+                        ? script.substring(0, 200)
+                        : mode === "slides"
+                            ? `slides_spec: ${slidesSpecPath}`
+                            : undefined,
                 }),
             });
 
@@ -582,7 +697,9 @@ export default function VideoEditorPage() {
         const date = new Date().toISOString().slice(0, 10);
         const defaultName = mode === "edit"
             ? `edited_${videoInfo?.filename?.replace(/\.[^/.]+$/, "") || "video"}_${date}.mp4`
-            : `generated_${date}.mp4`;
+            : mode === "slides"
+                ? `slides_${date}.mp4`
+                : `generated_${date}.mp4`;
         setSaveFileName(defaultName);
         setShowSaveModal(true);
     };
@@ -644,6 +761,21 @@ export default function VideoEditorPage() {
                 </div>
             </div>
 
+            {/* Feature Flag */}
+            <div className="flex items-center gap-3 mb-4 text-xs text-gray-400">
+                <span>Dynamic Slides</span>
+                <button
+                    onClick={() => setDynamicSlidesEnabled(prev => !prev)}
+                    className={`px-3 py-1 rounded-full border transition-colors ${dynamicSlidesEnabled
+                        ? "bg-emerald-600/20 border-emerald-500/60 text-emerald-200"
+                        : "bg-gray-800 border-gray-700 text-gray-400"
+                        }`}
+                >
+                    {dynamicSlidesEnabled ? "ON" : "OFF"}
+                </button>
+                <span className="text-gray-500">ローカル設定 (既定OFF)</span>
+            </div>
+
             {/* Mode Toggle */}
             <div className="flex gap-2 mb-6">
                 <button
@@ -666,6 +798,18 @@ export default function VideoEditorPage() {
                     <Type className="w-5 h-5" />
                     テキストから生成
                 </button>
+                {dynamicSlidesEnabled && (
+                    <button
+                        onClick={() => setMode("slides")}
+                        className={`flex-1 py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors ${mode === "slides"
+                            ? "bg-indigo-600 text-white"
+                            : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                            }`}
+                    >
+                        <FileText className="w-5 h-5" />
+                        Dynamic Slides
+                    </button>
+                )}
             </div>
 
             {/* Alerts */}
@@ -691,6 +835,7 @@ export default function VideoEditorPage() {
                             {status === "transcribing" && "文字起こし中..."}
                             {status === "editing" && "編集中..."}
                             {status === "generating" && "動画生成中..."}
+                            {status === "rendering-slides" && "スライド生成中..."}
                             {status === "removing-silence" && "無音削除中..."}
                             {status === "saving" && "ライブラリに保存中..."}
                             {status === "improving" && "AIで台本を改善中..."}
@@ -713,7 +858,7 @@ export default function VideoEditorPage() {
                     <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
                         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <Play className="w-5 h-5" />
-                            {mode === "edit" ? "動画プレビュー" : "生成プレビュー"}
+                            {mode === "edit" ? "動画プレビュー" : mode === "generate" ? "生成プレビュー" : "スライドプレビュー"}
                         </h2>
 
                         {mode === "edit" ? (
@@ -776,7 +921,7 @@ export default function VideoEditorPage() {
                                     </button>
                                 </div>
                             </>
-                        ) : (
+                        ) : mode === "generate" ? (
                             <>
                                 {/* Script Preview */}
                                 {editedVideoPath ? (
@@ -789,6 +934,45 @@ export default function VideoEditorPage() {
                                     <div className="h-64 bg-gradient-to-br from-green-900/30 to-teal-900/30 rounded-lg flex flex-col items-center justify-center">
                                         <Wand2 className="w-12 h-12 text-green-400 mb-3" />
                                         <p className="text-gray-400">台本を入力して動画を生成</p>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                {editedVideoPath ? (
+                                    <video
+                                        src={`${API_BASE}/api/video/serve?path=${encodeURIComponent(editedVideoPath)}`}
+                                        controls
+                                        className="w-full rounded-lg bg-black"
+                                    />
+                                ) : renderedSlides.length > 0 ? (
+                                    <div className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {renderedSlides.slice(0, 4).map((slide) => (
+                                                <div
+                                                    key={slide.index}
+                                                    className="rounded-lg overflow-hidden border border-gray-800 bg-black/40"
+                                                >
+                                                    <img
+                                                        src={`${API_BASE}/api/video/serve?path=${encodeURIComponent(slide.pngPath)}`}
+                                                        alt={slide.title}
+                                                        className="w-full h-32 object-cover"
+                                                    />
+                                                    <div className="px-2 py-1 text-xs text-gray-400">
+                                                        {slide.index}. {slide.title}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            生成済み: {renderedSlides.length}枚 {slidesOutputDir ? `(${slidesOutputDir})` : ""}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="h-64 bg-gradient-to-br from-slate-900/30 to-indigo-900/30 rounded-lg flex flex-col items-center justify-center">
+                                        <FileText className="w-12 h-12 text-indigo-300 mb-3" />
+                                        <p className="text-gray-400">spec.yml からスライドを生成</p>
+                                        <p className="text-xs text-gray-500 mt-1">Generate Slides を実行してください</p>
                                     </div>
                                 )}
                             </>
@@ -878,7 +1062,7 @@ export default function VideoEditorPage() {
                                 </>
                             )}
                         </>
-                    ) : (
+                    ) : mode === "generate" ? (
                         <>
                             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                                 <Type className="w-5 h-5" />
@@ -931,6 +1115,79 @@ export default function VideoEditorPage() {
                                         動画を生成
                                     </button>
                                 </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <FileText className="w-5 h-5" />
+                                Dynamic Slides
+                            </h2>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm text-gray-400 mb-2">Spec パス</label>
+                                    <input
+                                        value={slidesSpecPath}
+                                        onChange={e => setSlidesSpecPath(e.target.value)}
+                                        placeholder="slides/spec.yml"
+                                        className="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        例: `slides/spec.yml` または `slides/spec.json`
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm text-gray-400 mb-2">テンプレート</label>
+                                    <select
+                                        value={slideTemplate}
+                                        onChange={e => setSlideTemplate(e.target.value)}
+                                        className="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                                    >
+                                        <option value="classic">Classic</option>
+                                        <option value="centered">Centered</option>
+                                    </select>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={handleRenderSlides}
+                                        disabled={!slidesSpecPath.trim() || isProcessing}
+                                        className="py-3 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg flex items-center justify-center gap-2 transition-colors"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        Generate Slides
+                                    </button>
+                                    <button
+                                        onClick={handleGenerateSlidesVideo}
+                                        disabled={!slidesSpecPath.trim() || isProcessing}
+                                        className="py-3 px-4 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg flex items-center justify-center gap-2 transition-colors"
+                                    >
+                                        <Wand2 className="w-5 h-5" />
+                                        Generate Video
+                                    </button>
+                                </div>
+
+                                {renderedSlides.length > 0 ? (
+                                    <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-3 space-y-2">
+                                        <div className="text-xs text-gray-500">
+                                            出力: {slidesOutputDir || "未設定"}
+                                        </div>
+                                        <div className="max-h-48 overflow-y-auto text-sm text-gray-300 space-y-1">
+                                            {renderedSlides.map((slide) => (
+                                                <div key={slide.index} className="flex items-center justify-between">
+                                                    <span className="truncate">{slide.index}. {slide.title}</span>
+                                                    <span className="text-xs text-gray-500">{slide.durationSec}s</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-gray-500">
+                                        `slides/examples/basic.yml` をコピーして始められます。
+                                    </div>
+                                )}
                             </div>
                         </>
                     )}

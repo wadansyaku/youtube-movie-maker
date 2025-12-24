@@ -21,6 +21,7 @@ from moviepy import (
 DEFAULT_WIDTH = 1920
 DEFAULT_HEIGHT = 1080
 DEFAULT_FPS = 24
+DEFAULT_SLIDE_DURATION = 5
 
 
 def get_random_color() -> Tuple[int, int, int]:
@@ -248,3 +249,53 @@ def generate_video_from_script(
     )
     
     return video_path
+
+
+def generate_video_from_slides(
+    slide_paths: List[str],
+    durations: Optional[List[float]] = None,
+    output_path: Optional[str] = None,
+    fps: int = DEFAULT_FPS,
+    audio_path: Optional[str] = None
+) -> str:
+    """
+    Generate a video from rendered slide images.
+    """
+    if not slide_paths:
+        raise ValueError("No slide images provided")
+
+    if durations is None or len(durations) == 0:
+        durations = [DEFAULT_SLIDE_DURATION] * len(slide_paths)
+
+    if len(durations) != len(slide_paths):
+        raise ValueError("Durations must match slide count")
+
+    if output_path is None:
+        fd, output_path = tempfile.mkstemp(suffix=".mp4")
+        os.close(fd)
+
+    clips = []
+    for slide_path, duration in zip(slide_paths, durations):
+        clip = ImageClip(slide_path).set_duration(duration)
+        clips.append(clip)
+
+    final_video = concatenate_videoclips(clips, method="compose")
+
+    if audio_path:
+        audio_clip = AudioFileClip(audio_path)
+        final_video = final_video.set_audio(audio_clip.subclip(0, final_video.duration))
+
+    final_video.write_videofile(
+        output_path,
+        fps=fps,
+        codec="libx264",
+        audio_codec="aac",
+        verbose=False,
+        logger=None
+    )
+
+    final_video.close()
+    for clip in clips:
+        clip.close()
+
+    return output_path

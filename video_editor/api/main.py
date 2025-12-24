@@ -6,6 +6,7 @@ Provides REST API and WebSocket endpoints for video processing.
 """
 
 import os
+import mimetypes
 import uuid
 import asyncio
 import tempfile
@@ -26,7 +27,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.transcription import extract_audio, transcribe_audio, format_segments_to_df
 from utils.video_editor import cut_segments, remove_silence, get_video_info
 from utils.tts_generator import generate_script_audio
-from utils.video_generator import generate_video_from_script
+from utils.video_generator import generate_video_from_script, generate_video_from_slides
+from utils.slides import render_deck, load_deck_manifest
 from utils.exporter import get_temp_path, cleanup_temp_files
 
 
@@ -36,8 +38,13 @@ from utils.exporter import get_temp_path, cleanup_temp_files
 
 UPLOAD_DIR = Path(tempfile.gettempdir()) / "video_editor_uploads"
 OUTPUT_DIR = Path(tempfile.gettempdir()) / "video_editor_outputs"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SLIDES_OUTPUT_ROOT = PROJECT_ROOT / "out" / "slides"
+VIDEO_OUTPUT_ROOT = PROJECT_ROOT / "out"
 UPLOAD_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
+SLIDES_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+VIDEO_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Store active WebSocket connections
 active_connections: Dict[str, WebSocket] = {}
@@ -71,9 +78,13 @@ class EditRequest(BaseModel):
 
 
 class GenerateRequest(BaseModel):
-    script: str
+    script: Optional[str] = None
     language: str = "ja"
     add_subtitles: bool = True
+    dynamic_slides: bool = False
+    slides_spec_path: Optional[str] = None
+    slides_dir: Optional[str] = None
+    template: Optional[str] = None
 
 
 class SilenceRemovalRequest(BaseModel):
@@ -96,6 +107,26 @@ class SaveToLibraryRequest(BaseModel):
     project_id: Optional[str] = None
     source: str = "video_editor"
     description: Optional[str] = None
+
+
+class SlideInfo(BaseModel):
+    index: int
+    title: str
+    durationSec: float
+    pngPath: str
+    svgPath: Optional[str] = None
+
+
+class SlidesRenderRequest(BaseModel):
+    spec_path: str
+    template: Optional[str] = None
+    emit_svg: bool = False
+
+
+class SlidesRenderResponse(BaseModel):
+    outputDir: str
+    slideCount: int
+    slides: List[SlideInfo]
 
 
 # Next.js API base URL
@@ -164,6 +195,16 @@ def run_sync(coro):
         return loop.run_until_complete(coro)
     finally:
         loop.close()
+
+
+def resolve_project_path(input_path: str) -> Path:
+    path = Path(input_path)
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+    resolved = path.resolve()
+    if PROJECT_ROOT not in resolved.parents and resolved != PROJECT_ROOT:
+        raise HTTPException(status_code=400, detail="Path must be inside project root")
+    return resolved
 
 
 # ========================================
@@ -341,33 +382,119 @@ async def remove_video_silence(request: SilenceRemovalRequest):
         raise HTTPException(status_code=500, detail=f"Silence removal failed: {str(e)}")
 
 
+@app.post("/api/slides/render", response_model=SlidesRenderResponse)
+async def render_slides(request: SlidesRenderRequest):
+    """Render slide deck to PNGs."""
+    spec_path = resolve_project_path(request.spec_path)
+    if not spec_path.exists():
+        raise HTTPException(status_code=404, detail="Spec file not found")
+
+    job_id = str(uuid.uuid4())
+    output_dir = SLIDES_OUTPUT_ROOT / job_id
+
+    try:
+        result = render_deck(
+            str(spec_path),
+            str(output_dir),
+            template=request.template,
+            emit_svg=request.emit_svg
+        )
+
+        slides = [
+            SlideInfo(
+                index=slide["index"],
+                title=slide["title"],
+                durationSec=slide["durationSec"],
+                pngPath=slide["pngPath"],
+                svgPath=slide.get("svgPath")
+            )
+            for slide in result["slides"]
+        ]
+
+        return SlidesRenderResponse(
+            outputDir=result["outputDir"],
+            slideCount=result["slideCount"],
+            slides=slides
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Slide render failed: {str(e)}")
+
+
 @app.post("/api/video/generate")
 async def generate_video(request: GenerateRequest):
-    """Generate video from script text."""
-    if not request.script.strip():
-        raise HTTPException(status_code=400, detail="Script cannot be empty")
-    
+    """Generate video from script text or rendered slides."""
     job_id = str(uuid.uuid4())
-    
+
+    if request.dynamic_slides:
+        try:
+            if request.slides_dir:
+                try:
+                    slides_dir = resolve_project_path(request.slides_dir)
+                    manifest = load_deck_manifest(str(slides_dir))
+                except FileNotFoundError as exc:
+                    raise HTTPException(status_code=404, detail=str(exc)) from exc
+            elif request.slides_spec_path:
+                spec_path = resolve_project_path(request.slides_spec_path)
+                output_dir = SLIDES_OUTPUT_ROOT / job_id
+                manifest = render_deck(
+                    str(spec_path),
+                    str(output_dir),
+                    template=request.template
+                )
+            else:
+                raise HTTPException(status_code=400, detail="slides_spec_path or slides_dir is required")
+
+            slide_paths = [slide["pngPath"] for slide in manifest["slides"]]
+            durations = [slide["durationSec"] for slide in manifest["slides"]]
+            audio_path = manifest.get("meta", {}).get("audio")
+
+            output_path = str(VIDEO_OUTPUT_ROOT / f"video_{job_id}.mp4")
+
+            generate_video_from_slides(
+                slide_paths,
+                durations=durations,
+                output_path=output_path,
+                audio_path=audio_path
+            )
+
+            info = get_video_info(output_path)
+
+            return {
+                "job_id": job_id,
+                "status": "completed",
+                "output_path": output_path,
+                "duration": info["duration"],
+                "size": info["size"],
+                "fps": info["fps"]
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+
+    if not request.script or not request.script.strip():
+        raise HTTPException(status_code=400, detail="Script cannot be empty")
+
     try:
         output_path = str(OUTPUT_DIR / f"{job_id}_generated.mp4")
-        
+
         generate_video_from_script(
             request.script,
             language=request.language,
             output_path=output_path,
             add_subtitles=request.add_subtitles
         )
-        
+
         info = get_video_info(output_path)
-        
+
         return {
             "job_id": job_id,
             "status": "completed",
             "output_path": output_path,
             "duration": info["duration"]
         }
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
 
@@ -375,14 +502,19 @@ async def generate_video(request: GenerateRequest):
 @app.get("/api/video/download/{job_id}")
 async def download_video(job_id: str):
     """Download processed video by job ID."""
-    # Look for the file in output directory
-    for pattern in ["*_edited.mp4", "*_no_silence.mp4", "*_generated.mp4"]:
-        matches = list(OUTPUT_DIR.glob(f"{job_id}{pattern.replace('*', '')}"))
-        if matches:
+    search_paths = [
+        OUTPUT_DIR / f"{job_id}_edited.mp4",
+        OUTPUT_DIR / f"{job_id}_no_silence.mp4",
+        OUTPUT_DIR / f"{job_id}_generated.mp4",
+        VIDEO_OUTPUT_ROOT / f"video_{job_id}.mp4",
+    ]
+
+    for file_path in search_paths:
+        if file_path.exists():
             return FileResponse(
-                matches[0],
+                file_path,
                 media_type="video/mp4",
-                filename=f"edited_video_{job_id[:8]}.mp4"
+                filename=file_path.name
             )
     
     raise HTTPException(status_code=404, detail="Video not found")
@@ -390,11 +522,12 @@ async def download_video(job_id: str):
 
 @app.get("/api/video/serve")
 async def serve_video(path: str):
-    """Serve a video file for preview."""
+    """Serve a media file for preview."""
     if not Path(path).exists():
-        raise HTTPException(status_code=404, detail="Video not found")
-    
-    return FileResponse(path, media_type="video/mp4")
+        raise HTTPException(status_code=404, detail="File not found")
+
+    media_type, _ = mimetypes.guess_type(path)
+    return FileResponse(path, media_type=media_type or "application/octet-stream")
 
 
 @app.get("/api/projects")
