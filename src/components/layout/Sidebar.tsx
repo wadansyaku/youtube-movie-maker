@@ -42,6 +42,7 @@ const mainNavItems: NavItem[] = [
 
 const workflowNavItems: NavItem[] = [
     { href: "/video-editor", label: "動画エディタ", icon: <Scissors size={20} />, badge: "New" },
+    { href: "/cognitive-deck", label: "Cognitive Deck", icon: <FileText size={20} />, badge: "New" },
     { href: "/ai-tools", label: "AI Tools", icon: <Sparkles size={20} />, badge: "New" },
     { href: "/runs", label: "生成ジョブ", icon: <Wand2 size={20} /> },
     { href: "/prompts", label: "プロンプト", icon: <FileText size={20} /> },

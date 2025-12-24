@@ -38,6 +38,7 @@ npm run dev
 5. **DecisionLog**: 必須の編集意図・人間貢献記録
 6. **YouTube Export**: メタデータ+素材台帳+編集意図のエクスポート
 7. **Dynamic Slides**: YAML/JSON → SVG/PNG → MP4 の自動生成
+8. **Cognitive Deck**: Progressive Disclosure プレゼンのHTML生成
 
 ## ディレクトリ構造
 
@@ -108,3 +109,16 @@ python scripts/verify_slides_pipeline.py
 ```
 
 ※ FFmpeg が必要です。
+
+## Cognitive Deck
+
+### 使い方（UI）
+
+1. サイドバーから `Cognitive Deck` を開く
+2. テーマ / 対象者を入力
+3. `テンプレ生成` → `プレビュー` → `HTMLダウンロード`
+
+### 生成物
+
+- 単一HTMLファイル（Tailwind/FontAwesome/Chart.jsはCDN）
+- Progressive Disclosure ステップ進行（Space / ← / →）
