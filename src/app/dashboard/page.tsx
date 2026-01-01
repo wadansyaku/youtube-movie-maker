@@ -43,7 +43,7 @@ interface DashboardStats {
         title: string;
         status: string;
         updatedAt: string;
-        _count: { episodes: number };
+        _count: { productionEpisodes: number };
     }[];
 }
 
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-white">ダッシュボード</h1>
-                    <p className="text-gray-400 mt-1">CreativeFlow Studioへようこそ</p>
+                    <p className="text-gray-400 mt-1">YouTube Movie Makerへようこそ</p>
                 </div>
                 <div className="flex gap-2">
                     <Link
@@ -292,7 +292,7 @@ export default function DashboardPage() {
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-white truncate">{series.title}</p>
                                             <p className="text-sm text-gray-500">
-                                                {series._count.episodes} episodes
+                                                {series._count.productionEpisodes} episodes
                                             </p>
                                         </div>
                                         <span className="text-sm text-gray-500">

@@ -7,8 +7,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "CreativeFlow Studio",
-    description: "AI Video Production Management",
+    title: "YouTube Movie Maker",
+    description: "AI-Powered YouTube Video Production Management",
 };
 
 export default function RootLayout({

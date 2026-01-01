@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f6f2ec;
+  --surface: rgba(255, 255, 255, 0.86);
+  --surface-strong: #ffffff;
+  --surface-muted: rgba(255, 255, 255, 0.6);
+  --border: #e5ded5;
+  --text: #161616;
+  --muted: #6b6258;
+  --accent: #0f766e;
+  --accent-soft: rgba(13, 148, 136, 0.12);
+  --accent-strong: #0b4f4a;
+  --highlight: #f59e0b;
+  --shadow: 0 18px 45px rgba(32, 24, 12, 0.12);
+  --radius-lg: 20px;
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(14, 116, 144, 0.18), transparent 50%),
+    radial-gradient(circle at 90% 20%, rgba(245, 158, 11, 0.18), transparent 45%),
+    linear-gradient(120deg, #f9f5f0 0%, #f3efe8 50%, #f9f4ee 100%);
+  font-family: var(--font-body), "Noto Sans JP", sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), "Space Grotesk", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+@layer components {
+  .panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+  }
+
+  .panel-soft {
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
+    border-radius: var(--radius-lg);
+  }
+
+  .card {
+    border: 1px solid var(--border);
+    background: var(--surface-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 30px rgba(32, 24, 12, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(15, 118, 110, 0.4);
+    box-shadow: 0 18px 40px rgba(32, 24, 12, 0.12);
+  }
+
+  .input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.65rem 0.9rem;
+    background: #fffaf4;
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: rgba(15, 118, 110, 0.6);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+  }
+
+  .button-primary {
+    border-radius: 999px;
+    padding: 0.55rem 1.4rem;
+    background: linear-gradient(120deg, #0f766e, #0d9488);
+    color: white;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .button-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(15, 118, 110, 0.2);
+  }
+
+  .button-outline {
+    border-radius: 999px;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.7);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .button-outline:hover {
+    border-color: rgba(15, 118, 110, 0.5);
+    color: var(--accent);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  .chip-strong {
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    border-color: rgba(15, 118, 110, 0.25);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .badge-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #047857;
+  }
+
+  .badge-warn {
+    background: rgba(245, 158, 11, 0.18);
+    color: #b45309;
+  }
+
+  .badge-danger {
+    background: rgba(239, 68, 68, 0.18);
+    color: #b91c1c;
+  }
+
+  .badge-neutral {
+    background: rgba(148, 163, 184, 0.2);
+    color: #475569;
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: rise 0.4s ease-out both;
+}
+
+.stagger > * {
+  animation: rise 0.45s ease-out both;
+}
+
+/* Visual debug overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-image:
+    linear-gradient(rgba(15, 118, 110, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 118, 110, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+  z-index: 999;
+  transition: opacity 0.2s ease;
+}
+
+html[data-debug-grid="1"] body::before {
+  opacity: 1;
+}
+
+html[data-debug-outline="1"] * {
+  outline: 1px dashed rgba(15, 118, 110, 0.25);
+  outline-offset: -1px;
+}

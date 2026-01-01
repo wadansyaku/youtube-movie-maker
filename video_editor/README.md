@@ -2,6 +2,9 @@
 
 テキストを編集する感覚で動画をカット編集できるAI動画エディタ。
 
+> **Note**: メインUIは Next.js (`/video-editor`) に統合されています。  
+> このディレクトリは FastAPI バックエンドと Legacy Streamlit UI を含みます。
+
 ## 機能
 
 - 📹 **動画編集モード**: 動画をアップロード → 自動文字起こし → テキストで編集
@@ -16,7 +19,10 @@
 cd video_editor
 pip install -r requirements.txt
 
-# 2. アプリ起動
+# 2. FastAPI バックエンド起動 (メインの利用方法)
+python -m uvicorn api.main:app --reload --port 8502
+
+# 3. Legacy Streamlit UI (オプション / スタンドアロン利用)
 streamlit run app.py
 ```
 

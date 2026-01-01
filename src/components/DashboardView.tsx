@@ -7,7 +7,7 @@ import type { DashboardStats, Series } from '@/types';
 
 interface RecentSeries extends Series {
     _count?: {
-        episodes: number;
+        productionEpisodes: number;
     };
 }
 
@@ -121,7 +121,7 @@ export default function DashboardView({ stats, recentSeries }: Props) {
                                     <div className="flex items-center justify-between text-xs text-[var(--muted)] pt-4 border-t border-white/5">
                                         <span className="flex items-center gap-1">
                                             <span className="text-white/40">📺</span>
-                                            {series._count?.episodes ?? 0} EP
+                                            {series._count?.productionEpisodes ?? 0} EP
                                         </span>
                                         <span>{formatDate(series.updatedAt)}</span>
                                     </div>

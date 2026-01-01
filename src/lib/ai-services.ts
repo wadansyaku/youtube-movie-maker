@@ -1,7 +1,7 @@
 /**
  * AI Services Module
  * 
- * Provides AI-powered copilot functions for the CreativeFlow Studio.
+ * Provides AI-powered copilot functions for YouTube Movie Maker.
  * Uses Google Gemini API for text generation.
  */
 

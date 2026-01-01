@@ -5,13 +5,13 @@ import { createEpisode, deleteEpisode } from '@/app/actions';
 import { getStatusLabel, getStatusColor, formatDate } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import type { EpisodeWithRelations } from '@/types';
+import type { ProductionEpisodeWithRelations } from '@/types';
 import ScriptGenerator from '@/components/ai/ScriptGenerator';
 import { Sparkles, FileText } from 'lucide-react';
 
 interface Props {
     seriesId: string;
-    episodes: EpisodeWithRelations[];
+    episodes: ProductionEpisodeWithRelations[];
 }
 
 export default function EpisodeListView({ seriesId, episodes }: Props) {
@@ -171,7 +171,7 @@ export default function EpisodeListView({ seriesId, episodes }: Props) {
 
                                 <div className="w-12 h-12 rounded-lg bg-[#2a2a3a] flex flex-col items-center justify-center font-bold border border-white/5 group-hover:border-primary-500/30 transition-colors z-10">
                                     <span className="text-[10px] text-[var(--muted)]/70 uppercase">EP</span>
-                                    <span className="text-lg leading-none">{episode.episodeNumber}</span>
+                                    <span className="text-lg leading-none">{episode.episodeNumber ?? "—"}</span>
                                 </div>
 
                                 <div className="flex-1 min-w-0 z-10">

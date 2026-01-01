@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 async function getStats() {
     const [seriesCount, episodeCount, assetCount] = await Promise.all([
         prisma.series.count(),
-        prisma.episode.count(),
+        prisma.productionEpisode.count(),
         prisma.asset.count(),
     ]);
     return { seriesCount, episodeCount, assetCount };
@@ -15,7 +15,7 @@ async function getRecentSeries() {
         take: 6,
         orderBy: { updatedAt: 'desc' },
         include: {
-            _count: { select: { episodes: true } },
+            _count: { select: { productionEpisodes: true } },
         },
     });
 }

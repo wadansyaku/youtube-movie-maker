@@ -45,7 +45,7 @@ export default function RulesEditor({ data, onChange }: RulesEditorProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="glass p-6 rounded-xl border border-green-900/30 bg-green-900/5">
                     <h3 className="text-green-400 font-semibold mb-4 flex items-center gap-2">
-                        ✓ 推奨事項 (Do's)
+                        ✓ 推奨事項 (Do&apos;s)
                     </h3>
                     <TagInput
                         tags={values.dos}
@@ -57,7 +57,7 @@ export default function RulesEditor({ data, onChange }: RulesEditorProps) {
 
                 <div className="glass p-6 rounded-xl border border-red-900/30 bg-red-900/5">
                     <h3 className="text-red-400 font-semibold mb-4 flex items-center gap-2">
-                        ✕ 禁止事項 (Don'ts)
+                        ✕ 禁止事項 (Don&apos;ts)
                     </h3>
                     <TagInput
                         tags={values.donts}

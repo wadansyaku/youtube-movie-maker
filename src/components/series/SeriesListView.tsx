@@ -86,7 +86,7 @@ export default function SeriesListView({ seriesList }: Props) {
                                 </p>
 
                                 <div className="flex items-center gap-4 text-xs text-[var(--muted)] pt-4 border-t border-[var(--card-border)]">
-                                    <span className="flex items-center gap-1"><span className="text-white/40">📺</span> {series._count.episodes} EP</span>
+                                    <span className="flex items-center gap-1"><span className="text-white/40">📺</span> {series._count.productionEpisodes} EP</span>
                                     <span className="w-px h-3 bg-white/10"></span>
                                     <span className="flex items-center gap-1"><span className="text-white/40">📝</span> {series._count.promptPacks} PromptPacks</span>
                                 </div>

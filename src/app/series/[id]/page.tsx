@@ -12,12 +12,15 @@ async function getSeries(id: string) {
         where: { id },
         include: {
             worldBible: true,
-            episodes: {
+            productionEpisodes: {
                 orderBy: { episodeNumber: 'asc' },
                 include: {
                     decisionLog: true,
                     _count: { select: { episodeAssets: true } },
                 },
+            },
+            ideas: {
+                orderBy: { updatedAt: 'desc' },
             },
             promptPacks: {
                 include: { _count: { select: { prompts: true } } },

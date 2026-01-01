@@ -1,0 +1,382 @@
+{
+    "templates": [
+        {
+            "type": "long_script",
+            "lane": "med_bio",
+            "name": "Med/Bio解説 8分テンプレート",
+            "isDefault": true,
+            "content": {
+                "structure": [
+                    {
+                        "section": "hook",
+                        "time": "0:00-0:15",
+                        "description": "結論の先出し + 問いかけ",
+                        "example": "「{topic}って知ってる？実は{surprising_fact}なんです」"
+                    },
+                    {
+                        "section": "overview",
+                        "time": "0:15-1:00",
+                        "description": "全体像の提示",
+                        "example": "今日は3つのポイントで解説します"
+                    },
+                    {
+                        "section": "point1",
+                        "time": "1:00-3:00",
+                        "description": "ポイント1の解説"
+                    },
+                    {
+                        "section": "point2",
+                        "time": "3:00-5:00",
+                        "description": "ポイント2の解説"
+                    },
+                    {
+                        "section": "point3",
+                        "time": "5:00-7:00",
+                        "description": "ポイント3の解説"
+                    },
+                    {
+                        "section": "summary",
+                        "time": "7:00-7:30",
+                        "description": "まとめと確認"
+                    },
+                    {
+                        "section": "cta",
+                        "time": "7:30-8:00",
+                        "description": "CTA + 次回予告",
+                        "example": "チャンネル登録よろしく！次回は{next_topic}について"
+                    }
+                ],
+                "tips": [
+                    "最初の15秒で視聴者の疑問に答える",
+                    "専門用語は必ず説明を入れる",
+                    "自作の図解を1つ以上入れる"
+                ]
+            },
+            "variables": [
+                "topic",
+                "surprising_fact",
+                "next_topic"
+            ]
+        },
+        {
+            "type": "shorts_script",
+            "lane": "med_bio",
+            "name": "Med/Bio Shortsテンプレート",
+            "isDefault": true,
+            "content": {
+                "structure": [
+                    {
+                        "section": "hook",
+                        "time": "0-2秒",
+                        "description": "結論を先に言う",
+                        "example": "「{conclusion}」"
+                    },
+                    {
+                        "section": "example",
+                        "time": "2-20秒",
+                        "description": "具体例で説明"
+                    },
+                    {
+                        "section": "pitfall",
+                        "time": "20-40秒",
+                        "description": "よくある誤解/落とし穴"
+                    },
+                    {
+                        "section": "remember",
+                        "time": "40-55秒",
+                        "description": "覚え方/まとめ"
+                    },
+                    {
+                        "section": "cta",
+                        "time": "55-60秒",
+                        "description": "CTA",
+                        "example": "詳しくは長尺動画で！"
+                    }
+                ],
+                "tips": [
+                    "60秒以内に収める",
+                    "テンポ良く、間を詰める",
+                    "字幕は大きめに"
+                ]
+            },
+            "variables": [
+                "conclusion"
+            ]
+        },
+        {
+            "type": "long_script",
+            "lane": "ai_news",
+            "name": "AIニュース解説テンプレート（一般向け）",
+            "isDefault": true,
+            "content": {
+                "structure": [
+                    {
+                        "section": "hook",
+                        "time": "0:00-0:15",
+                        "description": "要点を一言で",
+                        "example": "「{news_summary}」"
+                    },
+                    {
+                        "section": "context",
+                        "time": "0:15-2:00",
+                        "description": "背景説明"
+                    },
+                    {
+                        "section": "implication",
+                        "time": "2:00-5:00",
+                        "description": "これが意味すること"
+                    },
+                    {
+                        "section": "action",
+                        "time": "5:00-7:00",
+                        "description": "次のアクション/対策"
+                    },
+                    {
+                        "section": "cta",
+                        "time": "7:00-8:00",
+                        "description": "CTA"
+                    }
+                ],
+                "tips": [
+                    "技術用語は避け、日常の例えを使う",
+                    "「つまりどういうこと？」を意識"
+                ]
+            },
+            "variables": [
+                "news_summary"
+            ]
+        },
+        {
+            "type": "long_script",
+            "lane": "ai_news",
+            "name": "AIニュース解説テンプレート（開発者向け）",
+            "isDefault": false,
+            "content": {
+                "structure": [
+                    {
+                        "section": "tldr",
+                        "time": "0:00-0:30",
+                        "description": "TL;DR"
+                    },
+                    {
+                        "section": "technical",
+                        "time": "0:30-4:00",
+                        "description": "技術的詳細"
+                    },
+                    {
+                        "section": "comparison",
+                        "time": "4:00-6:00",
+                        "description": "既存技術との比較"
+                    },
+                    {
+                        "section": "handson",
+                        "time": "6:00-7:30",
+                        "description": "試してみた/コード例"
+                    },
+                    {
+                        "section": "cta",
+                        "time": "7:30-8:00",
+                        "description": "CTA"
+                    }
+                ],
+                "tips": [
+                    "コードスニペットを見せる",
+                    "ベンチマーク結果があれば載せる"
+                ]
+            },
+            "variables": []
+        },
+        {
+            "type": "shorts_script",
+            "lane": "ai_news",
+            "name": "AIニュース Shortsテンプレート",
+            "isDefault": true,
+            "content": {
+                "structure": [
+                    {
+                        "section": "hook",
+                        "time": "0-3秒",
+                        "description": "衝撃の一言"
+                    },
+                    {
+                        "section": "what",
+                        "time": "3-20秒",
+                        "description": "何が起きた？"
+                    },
+                    {
+                        "section": "so_what",
+                        "time": "20-45秒",
+                        "description": "だから何？"
+                    },
+                    {
+                        "section": "do_what",
+                        "time": "45-60秒",
+                        "description": "で、どうする？"
+                    }
+                ]
+            },
+            "variables": []
+        },
+        {
+            "type": "youtube_description",
+            "lane": null,
+            "name": "YouTube説明文テンプレート",
+            "isDefault": true,
+            "content": {
+                "template": "{summary}\n\n📌 目次\n{chapters}\n\n🔗 参考リンク\n{references}\n\n💬 チャンネルについて\n{channel_about}\n\n#hashtag1 #hashtag2 #hashtag3"
+            },
+            "variables": [
+                "summary",
+                "chapters",
+                "references",
+                "channel_about"
+            ]
+        },
+        {
+            "type": "comment_pinned",
+            "lane": null,
+            "name": "固定コメントテンプレート",
+            "isDefault": true,
+            "content": {
+                "template": "ご視聴ありがとうございます！\n\n📝 補足情報\n{supplement}\n\n❓ 質問があればコメントで！\n\n🔔 チャンネル登録もよろしく"
+            },
+            "variables": [
+                "supplement"
+            ]
+        },
+        {
+            "type": "tts_dictionary",
+            "lane": "med_bio",
+            "name": "Med/Bio TTS読み辞書",
+            "isDefault": true,
+            "content": {
+                "entries": [
+                    {
+                        "term": "DNA",
+                        "reading": "ディーエヌエー"
+                    },
+                    {
+                        "term": "RNA",
+                        "reading": "アールエヌエー"
+                    },
+                    {
+                        "term": "ATP",
+                        "reading": "エーティーピー"
+                    },
+                    {
+                        "term": "CRISPR",
+                        "reading": "クリスパー"
+                    },
+                    {
+                        "term": "mRNA",
+                        "reading": "メッセンジャーアールエヌエー"
+                    }
+                ]
+            },
+            "variables": []
+        },
+        {
+            "type": "tts_dictionary",
+            "lane": "ai_news",
+            "name": "AI/Tech TTS読み辞書",
+            "isDefault": true,
+            "content": {
+                "entries": [
+                    {
+                        "term": "LLM",
+                        "reading": "エルエルエム"
+                    },
+                    {
+                        "term": "GPT",
+                        "reading": "ジーピーティー"
+                    },
+                    {
+                        "term": "API",
+                        "reading": "エーピーアイ"
+                    },
+                    {
+                        "term": "RAG",
+                        "reading": "ラグ"
+                    },
+                    {
+                        "term": "RLHF",
+                        "reading": "アールエルエイチエフ"
+                    }
+                ]
+            },
+            "variables": []
+        },
+        {
+            "type": "thumbnail_brief",
+            "lane": null,
+            "name": "サムネブリーフテンプレート",
+            "isDefault": true,
+            "content": {
+                "template": "【タイトル】{title}\n【キャッチ】{catchphrase}\n【メイン画像】{main_image_description}\n【テキスト配置】{text_position}\n【カラー】背景:{bg_color} テキスト:{text_color}"
+            },
+            "variables": [
+                "title",
+                "catchphrase",
+                "main_image_description",
+                "text_position",
+                "bg_color",
+                "text_color"
+            ]
+        },
+        {
+            "type": "runway_prompt",
+            "lane": null,
+            "name": "Runway基本プロンプト",
+            "isDefault": true,
+            "content": {
+                "template": "{scene_description}, {camera_movement}, cinematic lighting, high quality, 4K",
+                "presets": {
+                    "camera_movements": [
+                        "slow pan right",
+                        "dolly zoom",
+                        "tracking shot",
+                        "static wide shot"
+                    ],
+                    "styles": [
+                        "film grain, vintage",
+                        "clean modern",
+                        "dramatic noir",
+                        "soft dreamy"
+                    ]
+                }
+            },
+            "variables": [
+                "scene_description",
+                "camera_movement"
+            ]
+        },
+        {
+            "type": "suno_prompt",
+            "lane": null,
+            "name": "Suno BGMプロンプト",
+            "isDefault": true,
+            "content": {
+                "template": "{genre}, {mood}, {tempo} BPM, instrumental, no vocals",
+                "presets": {
+                    "genres": [
+                        "ambient electronic",
+                        "cinematic orchestral",
+                        "lo-fi hip hop",
+                        "epic trailer"
+                    ],
+                    "moods": [
+                        "mysterious atmospheric",
+                        "uplifting inspiring",
+                        "tense suspenseful",
+                        "peaceful relaxing"
+                    ]
+                }
+            },
+            "variables": [
+                "genre",
+                "mood",
+                "tempo"
+            ]
+        }
+    ]
+}

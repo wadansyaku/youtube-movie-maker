@@ -50,21 +50,18 @@ Project → Scene → Shot → Hero選定 → Review → Export
 - Prompt Pack（再利用可能なプロンプト）
 - AI補助（Script/Prompt/SEO 生成）
 - Review/Export（JSON出力・コンプライアンス確認）
-- 動画エディタ統合（Streamlit + FastAPI）
+- 動画エディタ統合（Next.js + FastAPI）
 
 ---
 
 ## 起動方法
 
 ```bash
-# Next.js (localhost:3000)
+# Next.js (localhost:3000) - メインUI + 動画エディタ
 npm run dev
 
 # Video Editor API (FastAPI, localhost:8502)
 npm run dev:api
-
-# Video Editor UI (Streamlit, localhost:8501)
-npm run dev:video-editor
 
 # Next.js + Video Editor API 同時起動
 npm run dev:all
@@ -113,11 +110,14 @@ S3_FORCE_PATH_STYLE="false"
 │   ├── components/         # UIコンポーネント
 │   ├── lib/                # ユーティリティ/AI連携
 │   └── types/              # 共通型定義
+├── archive/                # 旧サブアプリの退避領域
 ├── video_editor/           # Streamlit + FastAPI
 ├── templates/              # World Bible/PromptPack テンプレート
 ├── docs/                   # コンプライアンス資料
 └── data/                   # SQLite DB など
 ```
+
+※ 旧サブアプリは `archive/apps/` に退避しています。
 
 ---
 

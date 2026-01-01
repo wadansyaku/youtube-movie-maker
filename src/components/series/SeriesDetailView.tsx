@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 import type {
     SeriesWithRelations,
-    EpisodeWithRelations,
+    ProductionEpisodeWithRelations,
     WorldBible,
     PromptPackWithCounts
 } from '@/types';
@@ -99,25 +99,25 @@ export default function SeriesDetailView({ series }: Props) {
                             <div className="card p-5">
                                 <div className="text-sm text-[var(--muted)] mb-1">アイデア</div>
                                 <div className="text-3xl font-bold">
-                                    {series.episodes.filter(e => e.status === 'planning').length}
+                                    {series.ideas.length}
                                 </div>
                             </div>
                             <div className="card p-5">
                                 <div className="text-sm text-[var(--muted)] mb-1">制作中</div>
                                 <div className="text-3xl font-bold">
-                                    {series.episodes.filter(e => e.status !== 'planning' && e.status !== 'published').length}
+                                    {series.productionEpisodes.filter(e => e.status !== 'published' && e.status !== 'archived').length}
                                 </div>
                             </div>
                             <div className="card p-5">
                                 <div className="text-sm text-[var(--muted)] mb-1">公開済み</div>
                                 <div className="text-3xl font-bold text-primary-400">
-                                    {series.episodes.filter(e => e.status === 'published').length}
+                                    {series.productionEpisodes.filter(e => e.status === 'published').length}
                                 </div>
                             </div>
                             <div className="card p-5">
                                 <div className="text-sm text-[var(--muted)] mb-1">素材数</div>
                                 <div className="text-3xl font-bold">
-                                    {series.episodes.reduce((acc, e) => acc + (e._count?.episodeAssets || 0), 0)}
+                                    {series.productionEpisodes.reduce((acc, e) => acc + (e._count?.episodeAssets || 0), 0)}
                                 </div>
                             </div>
                         </div>
@@ -154,7 +154,7 @@ export default function SeriesDetailView({ series }: Props) {
                 {activeTab === 'roadmap' && (
                     <RoadmapView
                         seriesId={series.id}
-                        episodes={series.episodes.filter(e => e.status === 'planning')}
+                        ideas={series.ideas}
                         worldBible={series.worldBible}
                     />
                 )}
@@ -162,7 +162,7 @@ export default function SeriesDetailView({ series }: Props) {
                 {activeTab === 'episodes' && (
                     <EpisodeListView
                         seriesId={series.id}
-                        episodes={series.episodes.filter(e => e.status !== 'planning')}
+                        episodes={series.productionEpisodes.filter(e => e.status !== 'archived')}
                     />
                 )}
 

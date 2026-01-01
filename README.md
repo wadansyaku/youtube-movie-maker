@@ -47,11 +47,16 @@ npm run dev
 ├── src/app/          # Next.js App Router
 ├── src/components/   # Reactコンポーネント
 ├── src/lib/          # ユーティリティ
+├── archive/          # 旧サブアプリの退避領域
 ├── templates/        # World Bible/PromptPackテンプレート
 ├── docs/             # コンプライアンスチェックリスト
 ├── slides/           # スライド仕様 + テンプレ + フォント
 └── data/             # SQLite DB + アセット保存
 ```
+
+## アーカイブ
+
+- 旧サブアプリは `archive/apps/` に退避しています。
 
 ## 安全設計
 
@@ -64,7 +69,7 @@ npm run dev
 ### 使い方（UI）
 
 1. `slides/spec.yml` を編集
-2. 動画エディタ画面で `Dynamic Slides` を ON
+2. サイドバーから「動画エディタ」を開き、`Dynamic Slides` を ON
 3. `Generate Slides` → `Generate Video` の順に実行
 4. 必要なら「スライドデッキを保存」でZIPをAsset Libraryへ保存
 

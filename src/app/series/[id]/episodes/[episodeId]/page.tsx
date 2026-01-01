@@ -11,7 +11,7 @@ interface Props {
 }
 
 async function getEpisode(episodeId: string) {
-    return prisma.episode.findUnique({
+    return prisma.productionEpisode.findUnique({
         where: { id: episodeId },
         include: {
             series: {
@@ -52,14 +52,14 @@ export default async function EpisodeWorkspacePage({ params }: Props) {
                 <span className="mx-2">/</span>
                 <Link href={`/series/${id}`} className="hover:text-white">{episode.series.title}</Link>
                 <span className="mx-2">/</span>
-                <span>EP{episode.episodeNumber}: {episode.title}</span>
+                <span>EP{episode.episodeNumber ?? "—"}: {episode.title}</span>
             </div>
 
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
-                        <span className="text-2xl font-bold text-primary-400">EP{episode.episodeNumber}</span>
+                        <span className="text-2xl font-bold text-primary-400">EP{episode.episodeNumber ?? "—"}</span>
                         <h1 className="text-2xl font-bold">{episode.title}</h1>
                         <span className="badge">{getStatusLabel(episode.status)}</span>
                     </div>
@@ -130,11 +130,14 @@ export default async function EpisodeWorkspacePage({ params }: Props) {
                                 <input type="hidden" name="synopsis" value={episode.synopsis || ''} />
                                 <div className="flex gap-2">
                                     <select name="status" defaultValue={episode.status} className="input flex-1">
-                                        <option value="draft">下書き</option>
-                                        <option value="in_progress">制作中</option>
+                                        <option value="scripting">台本作成</option>
+                                        <option value="voice">音声収録</option>
+                                        <option value="assets">素材準備</option>
+                                        <option value="editing">編集</option>
                                         <option value="review">レビュー</option>
-                                        <option value="ready">公開準備完了</option>
+                                        <option value="scheduled">公開予定</option>
                                         <option value="published">公開済み</option>
+                                        <option value="archived">アーカイブ</option>
                                     </select>
                                     <button type="submit" className="btn btn-secondary">更新</button>
                                 </div>

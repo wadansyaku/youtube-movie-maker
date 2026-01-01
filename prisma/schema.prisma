@@ -24,9 +24,10 @@ model Series {
 
   // Relations
   worldBible   WorldBible?
-  episodes     Episode[]
+  productionEpisodes ProductionEpisode[]
   promptPacks  PromptPack[]
   generationRuns GenerationRun[]
+  ideas        Idea[]
 }
 
 model WorldBible {
@@ -43,27 +44,6 @@ model WorldBible {
   series Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 }
 
-model Episode {
-  id            String    @id @default(uuid())
-  seriesId      String
-  episodeNumber Int?
-  title         String
-  synopsis      String?
-  status        String    @default("draft") // planning, draft, in_progress, review, ready, published
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  publishedAt   DateTime?
-
-  // Relations
-  series        Series         @relation(fields: [seriesId], references: [id], onDelete: Cascade)
-  decisionLog   DecisionLog?
-  episodeAssets EpisodeAsset[]
-  scenes        Scene[]
-  generationRuns GenerationRun[]
-
-  @@unique([seriesId, episodeNumber])
-}
-
 model DecisionLog {
   id                    String   @id @default(uuid())
   episodeId             String   @unique
@@ -75,7 +55,7 @@ model DecisionLog {
   updatedAt             DateTime @updatedAt
 
   // Relations
-  episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  episode ProductionEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
 }
 
 // ============================================
@@ -112,6 +92,7 @@ model Asset {
   generationRuns  GenerationRun[]
   reviews         Review[]
   heroForShots    Shot[]          @relation("ShotHeroAsset")
+  generationPrompts GenerationPrompt[]
 }
 
 model Tag {
@@ -141,7 +122,7 @@ model EpisodeAsset {
   orderIndex Int      @default(0)
   notes      String?
 
-  episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  episode ProductionEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
   asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@id([episodeId, assetId])
@@ -204,6 +185,10 @@ model User {
   accounts       Account[]
   sessions       Session[]
   notifications  Notification[]
+  // YouTube Production Workflow
+  ownedIdeas           Idea[]              @relation("IdeaOwner")
+  ownedProductionEps   ProductionEpisode[] @relation("ProductionEpisodeOwner")
+  ownedTasks           ProductionTask[]    @relation("TaskOwner")
 }
 
 model Account {
@@ -278,7 +263,7 @@ model Scene {
 
   // Relations
   project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  episode Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  episode ProductionEpisode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
   shots   Shot[]
 }
 
@@ -378,7 +363,7 @@ model GenerationRun {
   // Relations
   asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
   series  Series? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
-  episode Episode? @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+  episode ProductionEpisode? @relation(fields: [episodeId], references: [id], onDelete: SetNull)
 
   @@index([seriesId])
   @@index([episodeId])
@@ -467,4 +452,160 @@ model Notification {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// YouTube Production Workflow
+// ============================================
+
+model Idea {
+  id             String   @id @default(uuid())
+  seriesId       String?
+  title          String
+  description    String?
+  lane           String?  // med_bio, ai_news
+  targetAudience String?  // general, developer
+  tags           String   @default("[]") // JSON array
+  status         String   @default("backlog") // backlog, researching, selected, archived
+  ownerId        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  owner              User?               @relation("IdeaOwner", fields: [ownerId], references: [id])
+  series             Series?             @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  productionEpisodes ProductionEpisode[]
+}
+
+model ProductionEpisode {
+  id                String    @id @default(uuid())
+  seriesId          String?
+  episodeNumber     Int?
+  ideaId            String?
+  parentEpisodeId   String?   // For Shorts derived from long-form
+  variant           String    @default("long") // long, shorts
+  lane              String?   // med_bio, ai_news
+
+  // 企画セクション
+  title             String
+  synopsis          String?
+  targetAudience    String?
+  targetDuration    Int?      // seconds
+  purposeStatement  String?   // 視聴後に何ができるようになるか
+
+  // 台本セクション (JSON)
+  scriptContent     String    @default("{}") // フック, 本編, CTA等
+  hookScript        String?   // 0-15秒の結論先出し
+  ctaScript         String?
+  pinnedComment     String?
+
+  // 音声セクション
+  ttsText           String?
+  ttsDictionary     String    @default("[]") // JSON: [{term, reading}]
+
+  // 素材セクション
+  slideOutline      String?   // スライド構成
+
+  // 公開メタデータ
+  youtubeTitle      String?
+  youtubeDescription String?
+  youtubeTags       String    @default("[]") // JSON array
+  thumbnailBrief    String?
+  scheduledAt       DateTime?
+  publishedAt       DateTime?
+
+  // 独自性チェック
+  originalityChecks String    @default("{}") // JSON: {selfMadeDiagram, ownJudgment, ...}
+
+  // ステータス
+  status            String    @default("scripting") // scripting, voice, assets, editing, review, scheduled, published, archived
+  tags              String    @default("[]")
+  ownerId           String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  idea              Idea?               @relation(fields: [ideaId], references: [id])
+  parentEpisode     ProductionEpisode?  @relation("EpisodeVariants", fields: [parentEpisodeId], references: [id])
+  childVariants     ProductionEpisode[] @relation("EpisodeVariants")
+  owner             User?               @relation("ProductionEpisodeOwner", fields: [ownerId], references: [id])
+  series            Series?             @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  decisionLog       DecisionLog?
+  episodeAssets     EpisodeAsset[]
+  scenes            Scene[]
+  tasks             ProductionTask[]
+  sources           ProductionSource[]
+  generationPrompts GenerationPrompt[]
+  generationRuns    GenerationRun[]
+  metrics           Metric[]
+
+  @@unique([seriesId, episodeNumber])
+}
+
+model ProductionTask {
+  id          String    @id @default(uuid())
+  episodeId   String
+  title       String
+  description String?
+  status      String    @default("todo") // todo, doing, blocked, done
+  priority    Int       @default(0)
+  dueDate     DateTime?
+  tags        String    @default("[]")
+  ownerId     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  episode     ProductionEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  owner       User?             @relation("TaskOwner", fields: [ownerId], references: [id])
+}
+
+model ProductionSource {
+  id          String    @id @default(uuid())
+  episodeId   String
+  type        String    // official, paper, article, other
+  title       String?
+  url         String?
+  notes       String?
+  accessedAt  DateTime?
+  tags        String    @default("[]")
+  createdAt   DateTime  @default(now())
+
+  episode     ProductionEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+}
+
+model GenerationPrompt {
+  id          String   @id @default(uuid())
+  episodeId   String
+  platform    String   // suno, runway, image, thumbnail
+  promptText  String
+  resultUrl   String?
+  assetId     String?  // Link to Asset if saved
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  episode     ProductionEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  asset       Asset?            @relation(fields: [assetId], references: [id])
+}
+
+model ProductionTemplate {
+  id          String   @id @default(uuid())
+  type        String   // long_script, shorts_script, youtube_description, comment_pinned, tts_dictionary, thumbnail_brief, runway_prompt, suno_prompt
+  name        String
+  lane        String?  // med_bio, ai_news, null=all
+  content     String   // Template content
+  variables   String   @default("[]") // JSON: placeholder variables
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Metric {
+  id            String   @id @default(uuid())
+  episodeId     String
+  recordedAt    DateTime @default(now())
+  ctr           Float?
+  avgWatchTime  Float?   // seconds
+  retentionRate Float?   // percentage
+  trafficSource String?  // JSON
+  notes         String?
+
+  episode       ProductionEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
 }

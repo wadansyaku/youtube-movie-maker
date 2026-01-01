@@ -29,25 +29,42 @@ export interface WorldBible {
     updatedAt: string | Date;
 }
 
-export interface Episode {
+export interface ProductionEpisode {
     id: string;
-    seriesId: string;
+    seriesId: string | null;
     episodeNumber: number | null;
     title: string;
     synopsis: string | null;
-    status: EpisodeStatus;
+    status: ProductionEpisodeStatus;
+    lane: string | null;
+    variant: string;
     createdAt: string | Date;
     updatedAt: string | Date;
     publishedAt: string | Date | null;
 }
 
-export type EpisodeStatus =
-    | 'planning'
-    | 'draft'
-    | 'in_progress'
+export type ProductionEpisodeStatus =
+    | 'scripting'
+    | 'voice'
+    | 'assets'
+    | 'editing'
     | 'review'
-    | 'ready'
-    | 'published';
+    | 'scheduled'
+    | 'published'
+    | 'archived';
+
+export interface Idea {
+    id: string;
+    seriesId: string | null;
+    title: string;
+    description: string | null;
+    lane: string | null;
+    targetAudience: string | null;
+    tags: string[];
+    status: string;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+}
 
 export interface DecisionLog {
     id: string;
@@ -124,11 +141,12 @@ export interface Prompt {
 
 export interface SeriesWithRelations extends Series {
     worldBible: WorldBible | null;
-    episodes: EpisodeWithRelations[];
+    productionEpisodes: ProductionEpisodeWithRelations[];
+    ideas: Idea[];
     promptPacks: PromptPackWithCounts[];
 }
 
-export interface EpisodeWithRelations extends Episode {
+export interface ProductionEpisodeWithRelations extends ProductionEpisode {
     decisionLog: DecisionLog | null;
     episodeAssets: EpisodeAssetWithAsset[];
     _count?: {
@@ -156,7 +174,7 @@ export interface AssetWithRelations extends Asset {
     episodeAssets: {
         episode: {
             id: string;
-            seriesId: string;
+            seriesId: string | null;
             episodeNumber: number | null;
         };
     }[];
@@ -217,7 +235,7 @@ export interface AIToolUsage {
 export interface SeriesCardProps {
     series: Series & {
         _count?: {
-            episodes: number;
+            productionEpisodes: number;
         };
     };
 }

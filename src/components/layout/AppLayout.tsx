@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Breadcrumbs from "./Breadcrumbs";
 import { LayoutProvider, useLayout } from "./LayoutContext";
+import { JobStatusPanel } from "@/components/jobs";
 
 // Pages that should NOT show the sidebar
 const noSidebarPages = ["/auth/signin", "/auth/verify-request", "/auth/error"];
@@ -27,6 +28,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
                 <Breadcrumbs />
                 {children}
             </main>
+            <JobStatusPanel />
         </div>
     );
 }

@@ -3,16 +3,17 @@
 import { useState } from 'react';
 import { createEpisodeIdea } from '@/app/actions';
 import { toast } from "sonner";
+import { getStatusColor, getStatusLabel } from '@/lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
-import type { Episode, WorldBible } from '@/types';
+import type { Idea, WorldBible } from '@/types';
 
 interface Props {
     seriesId: string;
-    episodes: Episode[];
+    ideas: Idea[];
     worldBible?: WorldBible | null;
 }
 
-export default function RoadmapView({ seriesId, episodes, worldBible }: Props) {
+export default function RoadmapView({ seriesId, ideas, worldBible }: Props) {
     const [isCreating, setIsCreating] = useState(false);
 
     // Parse World Bible data safely
@@ -142,7 +143,7 @@ export default function RoadmapView({ seriesId, episodes, worldBible }: Props) {
             </AnimatePresence>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {episodes.length === 0 ? (
+                {ideas.length === 0 ? (
                     <div className="col-span-full py-12 text-center text-[var(--muted)] border border-dashed border-white/10 rounded-xl">
                         <div className="text-4xl mb-3">💡</div>
                         <p>まだアイデアがありません。</p>
@@ -151,30 +152,30 @@ export default function RoadmapView({ seriesId, episodes, worldBible }: Props) {
                         </button>
                     </div>
                 ) : (
-                    episodes.map((episode) => (
+                    ideas.map((idea) => (
                         <motion.div
                             layout
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            key={episode.id}
+                            key={idea.id}
                             className="card p-5 group hover:border-primary-500/30 transition-colors relative flex flex-col h-full"
                         >
-                            <h3 className="font-bold mb-2 pr-8">{episode.title}</h3>
+                            <h3 className="font-bold mb-2 pr-8">{idea.title}</h3>
                             <p className="text-sm text-[var(--muted)] line-clamp-3 mb-4 min-h-[3rem]">
-                                {episode.synopsis || "メモなし"}
+                                {idea.description || "メモなし"}
                             </p>
 
                             <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
                                 <div className="text-xs text-[var(--muted)] flex items-center gap-1">
-                                    <span className="w-2 h-2 rounded-full bg-yellow-500/50"></span>
-                                    Planning
+                                    <span className={`w-2 h-2 rounded-full ${getStatusColor(idea.status)}`} />
+                                    {getStatusLabel(idea.status)}
                                 </div>
                                 <form action={async () => {
                                     // In a real app we might want to confirm first, but for MVP speed:
                                     const { convertEpisodeIdea } = await import('@/app/actions'); // Dynamic import to avoid circular dep issues if any, though here it's fine.
-                                    await convertEpisodeIdea(episode.id, seriesId);
+                                    await convertEpisodeIdea(idea.id, seriesId);
                                     toast.success("エピソードの制作を開始しました！", {
-                                        description: `${episode.title} を制作リストに移動しました。`
+                                        description: `${idea.title} を制作リストに移動しました。`
                                     });
                                 }}>
                                     <button

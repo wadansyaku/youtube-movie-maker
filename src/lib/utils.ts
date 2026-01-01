@@ -39,6 +39,15 @@ export function getStatusLabel(status: string): string {
         review: 'レビュー',
         ready: '公開準備完了',
         published: '公開済み',
+        planning: 'アイデア',
+        backlog: 'アイデア',
+        researching: 'リサーチ中',
+        selected: '制作候補',
+        scripting: '台本作成',
+        voice: '音声収録',
+        assets: '素材準備',
+        editing: '編集',
+        scheduled: '公開予定',
     };
     return labels[status] || status;
 }
@@ -52,6 +61,15 @@ export function getStatusColor(status: string): string {
         review: 'status-review',
         ready: 'status-published',
         published: 'status-published',
+        planning: 'status-draft',
+        backlog: 'status-draft',
+        researching: 'status-review',
+        selected: 'status-active',
+        scripting: 'status-draft',
+        voice: 'status-active',
+        assets: 'status-active',
+        editing: 'status-review',
+        scheduled: 'status-published',
     };
     return colors[status] || 'status-draft';
 }

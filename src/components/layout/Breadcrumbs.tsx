@@ -6,6 +6,9 @@ import { ChevronRight, Home } from "lucide-react";
 
 const routeLabels: Record<string, string> = {
     dashboard: "ダッシュボード",
+    studio: "統合スタジオ",
+    items: "アイテム",
+    templates: "テンプレート",
     projects: "プロジェクト",
     series: "シリーズ",
     episodes: "エピソード",
@@ -14,6 +17,12 @@ const routeLabels: Record<string, string> = {
     prompts: "プロンプト",
     reviews: "レビュー",
     exports: "エクスポート",
+    production: "制作ボード",
+    automation: "自動制作",
+    "shorts-maker": "Shorts Maker",
+    "video-editor": "動画エディタ",
+    "ai-tools": "AI Tools",
+    "cognitive-deck": "Cognitive Deck",
     scenes: "シーン",
     shots: "ショット",
     settings: "設定",

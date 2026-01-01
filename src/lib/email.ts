@@ -30,10 +30,10 @@ export async function sendVerificationRequest({
     await resend.emails.send({
       from: provider.from,
       to: identifier,
-      subject: "CreativeFlow Studio - サインイン",
+      subject: "YouTube Movie Maker - サインイン",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #6366f1;">CreativeFlow Studio</h1>
+          <h1 style="color: #6366f1;">YouTube Movie Maker</h1>
           <p>以下のボタンをクリックしてサインインしてください。</p>
           <a href="${url}" style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 16px 0;">
             サインイン

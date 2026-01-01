@@ -45,7 +45,7 @@ export async function GET() {
                 orderBy: { updatedAt: "desc" },
                 include: {
                     _count: {
-                        select: { episodes: true },
+                        select: { productionEpisodes: true },
                     },
                 },
             }),

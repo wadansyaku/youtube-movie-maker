@@ -127,7 +127,7 @@ export async function linkAssetToEpisode(
         update: { role, orderIndex },
     });
 
-    const episode = await prisma.episode.findUnique({
+    const episode = await prisma.productionEpisode.findUnique({
         where: { id: episodeId },
     });
 
@@ -145,7 +145,7 @@ export async function unlinkAssetFromEpisode(assetId: string, episodeId: string)
         },
     });
 
-    const episode = await prisma.episode.findUnique({
+    const episode = await prisma.productionEpisode.findUnique({
         where: { id: episodeId },
     });
 

@@ -61,7 +61,7 @@ export default function SignInPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4">
                         <Wand2 size={32} className="text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white">CreativeFlow Studio</h1>
+                    <h1 className="text-2xl font-bold text-white">YouTube Movie Maker</h1>
                     <p className="text-gray-400 mt-2">制作管理アプリにサインイン</p>
                 </div>
 

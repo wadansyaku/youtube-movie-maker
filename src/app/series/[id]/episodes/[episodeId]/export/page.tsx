@@ -10,7 +10,7 @@ interface Props {
 }
 
 async function getEpisodeForExport(episodeId: string) {
-    return prisma.episode.findUnique({
+    return prisma.productionEpisode.findUnique({
         where: { id: episodeId },
         include: {
             series: {
@@ -56,7 +56,7 @@ export default async function ExportPage({ params }: Props) {
                 <Link href={`/series/${id}`} className="hover:text-white">{episode.series.title}</Link>
                 <span className="mx-2">/</span>
                 <Link href={`/series/${id}/episodes/${episodeId}`} className="hover:text-white">
-                    EP{episode.episodeNumber}
+                    EP{episode.episodeNumber ?? "—"}
                 </Link>
                 <span className="mx-2">/</span>
                 <span>エクスポート</span>
@@ -68,7 +68,7 @@ export default async function ExportPage({ params }: Props) {
                     <span>📤</span> YouTube投稿準備
                 </h1>
                 <p className="text-[var(--muted)] mt-1">
-                    EP{episode.episodeNumber}: {episode.title}
+                    EP{episode.episodeNumber ?? "—"}: {episode.title}
                 </p>
             </div>
 

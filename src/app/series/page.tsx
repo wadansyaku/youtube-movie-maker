@@ -6,7 +6,7 @@ async function getSeries() {
     return prisma.series.findMany({
         orderBy: { updatedAt: 'desc' },
         include: {
-            _count: { select: { episodes: true, promptPacks: true } },
+            _count: { select: { productionEpisodes: true, promptPacks: true } },
         },
     });
 }

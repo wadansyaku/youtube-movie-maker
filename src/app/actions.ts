@@ -132,23 +132,23 @@ export async function createEpisode(seriesId: string, formData: FormData) {
         throw new Error('タイトルは必須です');
     }
 
-    // Get next episode number (excluding planning items)
-    const lastEpisode = await prisma.episode.findFirst({
+    // Get next episode number
+    const lastEpisode = await prisma.productionEpisode.findFirst({
         where: {
             seriesId,
-            episodeNumber: { not: null }
+            episodeNumber: { not: null },
         },
         orderBy: { episodeNumber: 'desc' },
     });
     const episodeNumber = (lastEpisode?.episodeNumber || 0) + 1;
 
-    const episode = await prisma.episode.create({
+    const episode = await prisma.productionEpisode.create({
         data: {
             seriesId,
             episodeNumber,
             title: title.trim(),
             synopsis: synopsis?.trim() || null,
-            status: 'draft',
+            status: 'scripting',
         },
     });
 
@@ -165,39 +165,51 @@ export async function createEpisodeIdea(seriesId: string, formData: FormData) {
         throw new Error('タイトルは必須です');
     }
 
-    // Create episode with null episodeNumber and 'planning' status
-    await prisma.episode.create({
+    await prisma.idea.create({
         data: {
             seriesId,
-            episodeNumber: null,
             title: title.trim(),
-            synopsis: synopsis?.trim() || null,
-            status: 'planning',
+            description: synopsis?.trim() || null,
+            status: 'backlog',
+            tags: '[]',
         },
     });
 
     revalidatePath(`/series/${seriesId}`);
 }
 
-export async function convertEpisodeIdea(episodeId: string, seriesId: string) {
+export async function convertEpisodeIdea(ideaId: string, seriesId: string) {
     await ensureAuth();
-    // 1. Get next episode number
-    const lastEpisode = await prisma.episode.findFirst({
+
+    const idea = await prisma.idea.findUnique({ where: { id: ideaId } });
+    if (!idea) {
+        throw new Error('Idea not found');
+    }
+
+    const lastEpisode = await prisma.productionEpisode.findFirst({
         where: {
             seriesId,
-            episodeNumber: { not: null }
+            episodeNumber: { not: null },
         },
         orderBy: { episodeNumber: 'desc' },
     });
-    const nextEpisodeNumber = (lastEpisode?.episodeNumber || 0) + 1;
+    const episodeNumber = (lastEpisode?.episodeNumber || 0) + 1;
 
-    // 2. Update the episode
-    await prisma.episode.update({
-        where: { id: episodeId },
+    await prisma.productionEpisode.create({
         data: {
-            episodeNumber: nextEpisodeNumber,
-            status: 'draft',
+            seriesId,
+            episodeNumber,
+            ideaId: idea.id,
+            title: idea.title,
+            synopsis: idea.description,
+            status: 'scripting',
+            lane: idea.lane || null,
         },
+    });
+
+    await prisma.idea.update({
+        where: { id: idea.id },
+        data: { status: 'selected' },
     });
 
     revalidatePath(`/series/${seriesId}`);
@@ -209,30 +221,30 @@ export async function updateEpisode(id: string, formData: FormData) {
     const synopsis = formData.get('synopsis') as string;
     const status = formData.get('status') as string;
 
-    const episode = await prisma.episode.update({
+    const episode = await prisma.productionEpisode.update({
         where: { id },
         data: {
             title: title?.trim(),
             synopsis: synopsis?.trim() || null,
-            status: status || 'draft',
+            status: status || 'scripting',
         },
-        include: { series: true },
     });
 
-    revalidatePath(`/series/${episode.seriesId}`);
-    revalidatePath(`/series/${episode.seriesId}/episodes/${id}`);
+    if (episode.seriesId) {
+        revalidatePath(`/series/${episode.seriesId}`);
+        revalidatePath(`/series/${episode.seriesId}/episodes/${id}`);
+    }
 }
 
 export async function deleteEpisode(id: string, seriesId: string) {
     await ensureAuth();
-    await prisma.episode.delete({
+    await prisma.productionEpisode.delete({
         where: { id },
     });
 
     revalidatePath(`/series/${seriesId}`);
     redirect(`/series/${seriesId}`);
 }
-
 // ============================================
 // Decision Log Actions
 // ============================================
@@ -258,7 +270,7 @@ export async function saveDecisionLog(episodeId: string, formData: FormData) {
     }
     const normalizedToolUsage = serializeToolUsage(toolUsageParsed.data);
 
-    const episode = await prisma.episode.findUnique({
+    const episode = await prisma.productionEpisode.findUnique({
         where: { id: episodeId },
         include: { decisionLog: true },
     });
