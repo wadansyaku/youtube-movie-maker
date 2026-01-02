@@ -511,6 +511,8 @@ model IdeaKernelIdea {
   similarityTop         String   @default("[]") // JSON array
   selectedAt            DateTime?
   selectionReason       String?
+  episodeSpecJson       String?
+  episodeSpecCreatedAt  DateTime?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }

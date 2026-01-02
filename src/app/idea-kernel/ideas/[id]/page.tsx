@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { AlertTriangle } from "lucide-react";
 import SelectIdeaForm from "./SelectIdeaForm";
+import EpisodeSpecPanel from "./EpisodeSpecPanel";
 
 const parseJsonArray = <T,>(
     value: string | null | undefined,
@@ -127,15 +128,21 @@ export default async function IdeaKernelDetailPage({
             {idea.status !== "SELECTED" ? (
                 <SelectIdeaForm ideaId={idea.id} />
             ) : (
-                <div className="card p-4 text-sm text-gray-300">
-                    <div className="font-semibold text-gray-200">採用済み</div>
-                    <div className="text-xs text-gray-500">
-                        採用日時: {idea.selectedAt?.toISOString().slice(0, 10) ?? "-"}
+                <>
+                    <div className="card p-4 text-sm text-gray-300">
+                        <div className="font-semibold text-gray-200">採用済み</div>
+                        <div className="text-xs text-gray-500">
+                            採用日時: {idea.selectedAt?.toISOString().slice(0, 10) ?? "-"}
+                        </div>
+                        <div className="mt-2 text-gray-300 jp-text">
+                            {idea.selectionReason}
+                        </div>
                     </div>
-                    <div className="mt-2 text-gray-300 jp-text">
-                        {idea.selectionReason}
-                    </div>
-                </div>
+                    <EpisodeSpecPanel
+                        ideaId={idea.id}
+                        episodeSpecJson={idea.episodeSpecJson}
+                    />
+                </>
             )}
         </div>
     );
