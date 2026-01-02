@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
     ArrowLeft,
@@ -59,17 +59,7 @@ export default function ExportsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isExporting, setIsExporting] = useState(false);
 
-    useEffect(() => {
-        fetchProjects();
-    }, []);
-
-    useEffect(() => {
-        if (selectedProjectId) {
-            fetchExports();
-        }
-    }, [selectedProjectId]);
-
-    const fetchProjects = async () => {
+    const fetchProjects = useCallback(async () => {
         try {
             const res = await fetch("/api/projects?limit=100");
             const data = await res.json();
@@ -82,9 +72,9 @@ export default function ExportsPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
-    const fetchExports = async () => {
+    const fetchExports = useCallback(async () => {
         try {
             const res = await fetch(`/api/projects/${selectedProjectId}/export`);
             const data = await res.json();
@@ -92,7 +82,17 @@ export default function ExportsPage() {
         } catch (error) {
             console.error("Failed to fetch exports:", error);
         }
-    };
+    }, [selectedProjectId]);
+
+    useEffect(() => {
+        fetchProjects();
+    }, [fetchProjects]);
+
+    useEffect(() => {
+        if (selectedProjectId) {
+            fetchExports();
+        }
+    }, [selectedProjectId, fetchExports]);
 
     const handleExportCSV = async () => {
         if (!selectedProjectId) return;

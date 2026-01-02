@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useState } from 'react';
 import { Users, Mail, Shield, X, Plus, Crown, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

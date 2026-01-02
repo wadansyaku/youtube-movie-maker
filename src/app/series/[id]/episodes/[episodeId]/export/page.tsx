@@ -38,6 +38,15 @@ export default async function ExportPage({ params }: Props) {
     if (!episode) {
         notFound();
     }
+    if (!episode.series) {
+        notFound();
+    }
+
+    const series = episode.series;
+    const exportEpisode = {
+        ...episode,
+        series,
+    };
 
     const hasDecisionLog = !!episode.decisionLog;
     const hasAssets = episode.episodeAssets.length > 0;
@@ -53,7 +62,7 @@ export default async function ExportPage({ params }: Props) {
             <div className="text-sm text-[var(--muted)] mb-4">
                 <Link href="/series" className="hover:text-white">シリーズ</Link>
                 <span className="mx-2">/</span>
-                <Link href={`/series/${id}`} className="hover:text-white">{episode.series.title}</Link>
+                <Link href={`/series/${id}`} className="hover:text-white">{series.title}</Link>
                 <span className="mx-2">/</span>
                 <Link href={`/series/${id}/episodes/${episodeId}`} className="hover:text-white">
                     EP{episode.episodeNumber ?? "—"}
@@ -116,7 +125,7 @@ export default async function ExportPage({ params }: Props) {
                         <h3 className="text-sm font-medium mb-2 text-[var(--muted)]">metadata.json</h3>
                         <pre className="text-xs bg-[#0f0f14] p-3 rounded-lg overflow-auto max-h-40">
                             {JSON.stringify({
-                                series: episode.series.title,
+                                series: series.title,
                                 episode: episode.episodeNumber,
                                 title: episode.title,
                                 synopsis: episode.synopsis,
@@ -167,7 +176,7 @@ export default async function ExportPage({ params }: Props) {
                 episodeId={episodeId}
                 seriesId={id}
                 disabled={!allChecksPass}
-                episode={episode}
+                episode={exportEpisode}
             />
 
             {/* Originality Notice */}

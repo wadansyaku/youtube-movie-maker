@@ -76,7 +76,7 @@ export default function FileUpload({
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const validateFile = (file: File): string | null => {
+    const validateFile = useCallback((file: File): string | null => {
         const fileType = getFileType(file.name);
 
         if (fileType === "other" || !allowedTypes.includes(fileType)) {
@@ -88,7 +88,7 @@ export default function FileUpload({
         }
 
         return null;
-    };
+    }, [allowedTypes, maxSizeBytes]);
 
     const addFiles = useCallback((newFiles: FileList | File[]) => {
         const filesToAdd: UploadFile[] = [];
@@ -124,7 +124,7 @@ export default function FileUpload({
         if (filesToAdd.length > 0) {
             setFiles((prev) => [...prev, ...filesToAdd]);
         }
-    }, [files.length, maxFiles, maxSizeBytes, allowedTypes, onError]);
+    }, [files.length, maxFiles, validateFile, onError]);
 
     const removeFile = (id: string) => {
         setFiles((prev) => prev.filter((f) => f.id !== id));

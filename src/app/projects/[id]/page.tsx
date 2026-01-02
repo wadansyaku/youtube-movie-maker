@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,7 +12,7 @@ import {
     MoreVertical,
     Clock,
     Film,
-    Image,
+    Image as ImageIcon,
     Music,
     FileVideo,
     FileText,
@@ -97,11 +97,7 @@ export default function ProjectDetailPage({
     );
     const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchProject();
-    }, [id]);
-
-    const fetchProject = async () => {
+    const fetchProject = useCallback(async () => {
         setIsLoading(true);
         try {
             const res = await fetch(`/api/projects/${id}`);
@@ -117,7 +113,11 @@ export default function ProjectDetailPage({
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [id, router]);
+
+    useEffect(() => {
+        fetchProject();
+    }, [fetchProject]);
 
     const handleUpdateProject = async (formData: {
         name: string;
@@ -181,7 +181,7 @@ export default function ProjectDetailPage({
             case "audio":
                 return <Music size={16} className="text-green-400" />;
             case "image":
-                return <Image size={16} className="text-amber-400" />;
+                return <ImageIcon size={16} className="text-amber-400" />;
             case "slides":
                 return <FileText size={16} className="text-indigo-400" />;
             default:
@@ -268,7 +268,7 @@ export default function ProjectDetailPage({
                             </div>
                         )}
                         <div className="flex items-center gap-2 text-gray-400">
-                            <Image size={16} />
+                            <ImageIcon size={16} />
                             <span>{project.projectAssets.length} assets</span>
                         </div>
                     </div>

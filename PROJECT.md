@@ -1,5 +1,7 @@
 # YouTube Movie Maker (CreativeFlow Studio)
 
+このドキュメントは仕様/設計の詳細版です。概要と最新の案内は `README.md` を参照してください。
+
 AI生成素材を統合管理し、YouTube公開に必要な意思決定ログと編集履歴を残す制作管理アプリ。
 UI上の名称は一部「CreativeFlow Studio」のままです。
 

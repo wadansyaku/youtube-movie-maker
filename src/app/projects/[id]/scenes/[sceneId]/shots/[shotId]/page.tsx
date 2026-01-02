@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -93,11 +93,7 @@ export default function ShotDetailPage({
     const [isLoading, setIsLoading] = useState(true);
     const [isSettingHero, setIsSettingHero] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchShot();
-    }, [shotId]);
-
-    const fetchShot = async () => {
+    const fetchShot = useCallback(async () => {
         setIsLoading(true);
         try {
             const res = await fetch(
@@ -114,7 +110,11 @@ export default function ShotDetailPage({
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [projectId, sceneId, shotId, router]);
+
+    useEffect(() => {
+        fetchShot();
+    }, [fetchShot]);
 
     const handleSetHero = async (assetId: string) => {
         setIsSettingHero(assetId);

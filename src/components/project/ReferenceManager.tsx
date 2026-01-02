@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     Plus,
     Folder,
@@ -45,11 +45,7 @@ export default function ReferenceManager({ projectId }: ReferenceManagerProps) {
     const [newItemUrl, setNewItemUrl] = useState("");
     const [newItemNotes, setNewItemNotes] = useState("");
 
-    useEffect(() => {
-        fetchReferenceSets();
-    }, [projectId]);
-
-    const fetchReferenceSets = async () => {
+    const fetchReferenceSets = useCallback(async () => {
         setIsLoading(true);
         try {
             const res = await fetch(`/api/projects/${projectId}/references`);
@@ -60,7 +56,11 @@ export default function ReferenceManager({ projectId }: ReferenceManagerProps) {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [projectId]);
+
+    useEffect(() => {
+        fetchReferenceSets();
+    }, [fetchReferenceSets]);
 
     const handleCreateSet = async () => {
         if (!newSetName.trim()) return;

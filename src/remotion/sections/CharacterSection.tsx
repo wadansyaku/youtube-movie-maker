@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate, Easing } from 'remotion';
 import { CharacterSection as CharacterSectionType, Character } from '../types/video';

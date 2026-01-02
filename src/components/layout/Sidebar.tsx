@@ -7,7 +7,7 @@ import {
     LayoutDashboard,
     FolderKanban,
     Film,
-    Image,
+    Image as ImageIcon,
     Wand2,
     FileText,
     MessageSquare,
@@ -42,7 +42,7 @@ const mainNavItems: NavItem[] = [
     { href: "/content-planner", label: "30日企画", icon: <Calendar size={20} /> },
     { href: "/prompt-generator", label: "プロンプト生成", icon: <Wand2 size={20} />, badge: "AI" },
     { href: "/automation", label: "自動制作", icon: <Bot size={20} /> },
-    { href: "/assets", label: "素材ライブラリ", icon: <Image size={20} /> },
+    { href: "/assets", label: "素材ライブラリ", icon: <ImageIcon size={20} /> },
 ];
 
 const advancedNavItems: NavItem[] = [

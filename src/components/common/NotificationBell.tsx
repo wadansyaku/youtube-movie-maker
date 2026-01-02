@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell } from "lucide-react";
 
 interface Notification {
@@ -19,7 +19,7 @@ export default function NotificationBell({ userId }: { userId: string }) {
     const [isOpen, setIsOpen] = useState(false);
     const popoverRef = useRef<HTMLDivElement>(null);
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         if (!userId) return;
         try {
             const res = await fetch(`/api/notifications?userId=${userId}&limit=10`);
@@ -31,9 +31,9 @@ export default function NotificationBell({ userId }: { userId: string }) {
         } catch (error) {
             console.error("Failed to fetch notifications", error);
         }
-    };
+    }, [userId]);
 
-    const markAsRead = async (id?: string) => {
+    const markAsRead = useCallback(async (id?: string) => {
         try {
             await fetch("/api/notifications", {
                 method: "PATCH",
@@ -43,13 +43,13 @@ export default function NotificationBell({ userId }: { userId: string }) {
         } catch (error) {
             console.error("Failed to mark read", error);
         }
-    };
+    }, [userId, fetchNotifications]);
 
     useEffect(() => {
         fetchNotifications();
         const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
         return () => clearInterval(interval);
-    }, [userId]);
+    }, [fetchNotifications]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

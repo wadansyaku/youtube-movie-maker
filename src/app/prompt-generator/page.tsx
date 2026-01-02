@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Video,
     Music,
@@ -107,7 +107,7 @@ export default function PromptGeneratorPage() {
     };
 
     // プロンプト生成
-    const generatePrompts = (configData: any) => {
+    const generatePrompts = useCallback((configData: any) => {
         const prompts: PromptOutput[] = [];
 
         // Runwayプロンプト（各セクション用）
@@ -183,7 +183,7 @@ Duration: 60 seconds, loop-friendly ending.`,
         }
 
         setOutputs(prompts);
-    };
+    }, [bgmStyle, selectedVoiceSensei, selectedVoiceStudent]);
 
     // クリップボードにコピー
     const handleCopy = (prompt: string, index: number) => {
@@ -209,7 +209,7 @@ Duration: 60 seconds, loop-friendly ending.`,
         if (config) {
             generatePrompts(config);
         }
-    }, [selectedVoiceSensei, selectedVoiceStudent, bgmStyle]);
+    }, [config, generatePrompts]);
 
     const runwayPrompts = outputs.filter(o => o.type === 'runway');
     const sunoPrompts = outputs.filter(o => o.type === 'suno');

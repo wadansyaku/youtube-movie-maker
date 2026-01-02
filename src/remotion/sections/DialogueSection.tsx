@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { useCurrentFrame, useVideoConfig, interpolate, Easing } from 'remotion';
 import { DialogueSection as DialogueSectionType, Character } from '../types/video';

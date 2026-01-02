@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
     ArrowLeft,
@@ -108,11 +108,7 @@ export default function ReviewsPage() {
     const [timecodeEnd, setTimecodeEnd] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        fetchReviews();
-    }, [statusFilter]);
-
-    const fetchReviews = async () => {
+    const fetchReviews = useCallback(async () => {
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
@@ -126,7 +122,11 @@ export default function ReviewsPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [statusFilter]);
+
+    useEffect(() => {
+        fetchReviews();
+    }, [fetchReviews]);
 
     const handleStatusChange = async (reviewId: string, newStatus: string, template?: string) => {
         try {

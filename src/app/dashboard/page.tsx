@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
     FolderKanban,
     Film,
-    Image,
+    Image as ImageIcon,
     Music,
     FileVideo,
     Clock,
@@ -175,11 +175,11 @@ export default function DashboardPage() {
                             </p>
                         </div>
                         <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center">
-                            <Image size={24} className="text-blue-400" />
+                            <ImageIcon size={24} className="text-blue-400" />
                         </div>
                     </div>
                     <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
-                        <FileVideo size={14} /> <Music size={14} /> <Image size={14} />
+                        <FileVideo size={14} /> <Music size={14} /> <ImageIcon size={14} />
                     </div>
                 </div>
 
@@ -366,7 +366,7 @@ export default function DashboardPage() {
                     href="/assets"
                     className="flex flex-col items-center gap-2 p-6 bg-gray-900 border border-gray-700 rounded-xl hover:border-blue-500 transition-colors group"
                 >
-                    <Image size={32} className="text-gray-400 group-hover:text-blue-400" />
+                    <ImageIcon size={32} className="text-gray-400 group-hover:text-blue-400" />
                     <span className="text-sm text-gray-300">素材ライブラリ</span>
                 </Link>
                 <Link

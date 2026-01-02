@@ -41,6 +41,11 @@ export default async function EpisodeWorkspacePage({ params }: Props) {
     if (!episode) {
         notFound();
     }
+    if (!episode.series) {
+        notFound();
+    }
+
+    const series = episode.series;
 
     const deleteAction = deleteEpisode.bind(null, episodeId, id);
 
@@ -50,7 +55,7 @@ export default async function EpisodeWorkspacePage({ params }: Props) {
             <div className="text-sm text-[var(--muted)] mb-4">
                 <Link href="/series" className="hover:text-white">シリーズ</Link>
                 <span className="mx-2">/</span>
-                <Link href={`/series/${id}`} className="hover:text-white">{episode.series.title}</Link>
+                <Link href={`/series/${id}`} className="hover:text-white">{series.title}</Link>
                 <span className="mx-2">/</span>
                 <span>EP{episode.episodeNumber ?? "—"}: {episode.title}</span>
             </div>
@@ -161,18 +166,18 @@ export default async function EpisodeWorkspacePage({ params }: Props) {
             </div>
 
             {/* World Bible Reference */}
-            {episode.series.worldBible && (
+            {series.worldBible && (
                 <div className="mt-8 glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
                             <span>📚</span> ワールドバイブル (World Bible)
                         </h3>
                         <Link
-                            href={`/series/${id}/world-bible`}
-                            className="text-sm text-primary-400 hover:text-primary-300 hover:underline transition-colors"
-                        >
-                            編集する →
-                        </Link>
+                                    href={`/series/${id}/world-bible`}
+                                    className="text-sm text-primary-400 hover:text-primary-300 hover:underline transition-colors"
+                                >
+                                    編集する →
+                                </Link>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -181,7 +186,7 @@ export default async function EpisodeWorkspacePage({ params }: Props) {
                             <div className="text-sm jp-text opacity-90">
                                 {(() => {
                                     try {
-                                        const v = JSON.parse(episode.series.worldBible.visualStyle);
+                                        const v = JSON.parse(series.worldBible.visualStyle);
                                         return (
                                             <ul className="space-y-1 list-disc list-inside">
                                                 {v.colorPalette && <li>パレット: {v.colorPalette.join(', ')}</li>}
@@ -198,7 +203,7 @@ export default async function EpisodeWorkspacePage({ params }: Props) {
                             <div className="text-sm jp-text opacity-90">
                                 {(() => {
                                     try {
-                                        const a = JSON.parse(episode.series.worldBible.audioStyle);
+                                        const a = JSON.parse(series.worldBible.audioStyle);
                                         return (
                                             <ul className="space-y-1 list-disc list-inside">
                                                 {a.genre && <li>ジャンル: {a.genre}</li>}

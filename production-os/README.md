@@ -1,5 +1,7 @@
 # Production OS (MVP)
 
+> このディレクトリはドキュメントのみです。実体は `archive/apps/production-os` に退避しています。
+
 ## 状態
 
 このMVPはメインアプリから除外済みです。旧ルート/サーバーアクションは `archive/production-os` に退避し、DBスキーマの Item/Template/JobRun/Artifact/Reference はメインアプリから削除しました。

@@ -1,5 +1,7 @@
 # TODO - Improvement Plan
 
+このファイルは改善ロードマップの要約です。詳細なタスク管理はGitHubのIssues/Projectsがある場合はそちらを優先します。
+
 ## ✅ Recently Completed
 
 - [x] Decision Log: AIツール使用記録の構造化UI + JSON正規化

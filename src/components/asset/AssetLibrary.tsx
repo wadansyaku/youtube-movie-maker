@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     Search,
     Filter,
@@ -93,11 +93,7 @@ export default function AssetLibrary({
     const [showUpload, setShowUpload] = useState(false);
     const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
 
-    useEffect(() => {
-        fetchAssets();
-    }, [projectId, typeFilter, sourceFilter, searchQuery]);
-
-    const fetchAssets = async () => {
+    const fetchAssets = useCallback(async () => {
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
@@ -114,7 +110,11 @@ export default function AssetLibrary({
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [projectId, typeFilter, sourceFilter, searchQuery]);
+
+    useEffect(() => {
+        fetchAssets();
+    }, [fetchAssets]);
 
     const formatFileSize = (bytes: number | null): string => {
         if (!bytes) return "-";

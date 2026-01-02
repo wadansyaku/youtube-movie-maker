@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import PromptBuilder from "@/components/generation/PromptBuilder";
 import RunFeed from "@/components/generation/RunFeed";
 import { Play, Download, Share2, Info, Loader2 } from "lucide-react";
@@ -34,22 +34,22 @@ export default function GeneratePage() {
     const [seriesList, setSeriesList] = useState<Series[]>([]);
     const [selectedSeriesId, setSelectedSeriesId] = useState<string | null>(null);
 
-    const fetchRuns = async () => {
+    const fetchRuns = useCallback(async () => {
         try {
             const res = await fetch("/api/generation-runs?limit=20");
             const data = await res.json();
             if (data.runs) {
                 setRuns(data.runs);
-                // If active run is processing, update it
-                if (activeRun) {
-                    const updatedActive = data.runs.find((r: GenerationRun) => r.id === activeRun.id);
-                    if (updatedActive) setActiveRun(updatedActive);
-                }
+                setActiveRun((prev) => {
+                    if (!prev) return prev;
+                    const updatedActive = data.runs.find((r: GenerationRun) => r.id === prev.id);
+                    return updatedActive || prev;
+                });
             }
         } catch (e) {
             console.error("Failed to fetch runs", e);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchRuns();
@@ -72,7 +72,7 @@ export default function GeneratePage() {
         return () => {
             if (pollingRef.current) clearInterval(pollingRef.current);
         };
-    }, []);
+    }, [fetchRuns]);
 
     const handleGenerate = async (data: any) => {
         setIsGenerating(true);

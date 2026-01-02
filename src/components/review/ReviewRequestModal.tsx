@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import { useState, useEffect } from "react";
 import { X, User as UserIcon, Send } from "lucide-react";
 
@@ -99,7 +100,15 @@ export default function ReviewRequestModal({ assetId, assetName, isOpen, onClose
                                         }`}
                                 >
                                     <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs">
-                                        {user.image ? <img src={user.image} className="rounded-full" /> : <UserIcon size={14} />}
+                                        {user.image ? (
+                                            <img
+                                                src={user.image}
+                                                alt={user.name || "Reviewer"}
+                                                className="rounded-full"
+                                            />
+                                        ) : (
+                                            <UserIcon size={14} />
+                                        )}
                                     </div>
                                     <div className="text-left">
                                         <div className="text-sm font-medium">{user.name || "Unknown"}</div>

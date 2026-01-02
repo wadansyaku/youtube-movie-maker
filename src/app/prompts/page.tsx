@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
     ArrowLeft,
@@ -59,11 +59,7 @@ export default function PromptsPage() {
         variables: "[]",
     });
 
-    useEffect(() => {
-        fetchPrompts();
-    }, [typeFilter, searchQuery]);
-
-    const fetchPrompts = async () => {
+    const fetchPrompts = useCallback(async () => {
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
@@ -78,7 +74,11 @@ export default function PromptsPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [typeFilter, searchQuery]);
+
+    useEffect(() => {
+        fetchPrompts();
+    }, [fetchPrompts]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

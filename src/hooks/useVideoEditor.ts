@@ -423,17 +423,8 @@ export function useVideoEditor(): VideoEditorState & VideoEditorActions {
         document.body.removeChild(a);
     }, [editedVideoPath, mode]);
 
-    // Save to library
-    const handleSaveToLibrary = useCallback(async () => {
-        if (saveTarget === "slides") {
-            await handleSaveSlidesToLibrary();
-        } else {
-            await handleSaveVideoToLibrary();
-        }
-    }, [saveTarget]);
-
     // Save video to library
-    const handleSaveVideoToLibrary = async () => {
+    const handleSaveVideoToLibrary = useCallback(async () => {
         if (!editedVideoPath || !saveFileName.trim()) {
             setError("ファイル名を入力してください");
             return;
@@ -475,10 +466,10 @@ export function useVideoEditor(): VideoEditorState & VideoEditorActions {
             setError(err instanceof Error ? err.message : "Save to library failed");
             setStatus("idle");
         }
-    };
+    }, [editedVideoPath, saveFileName, selectedProjectId, mode, script, slidesSpecPath]);
 
     // Save slides to library
-    const handleSaveSlidesToLibrary = async () => {
+    const handleSaveSlidesToLibrary = useCallback(async () => {
         if (!saveFileName.trim()) {
             setError("ファイル名を入力してください");
             return;
@@ -523,7 +514,16 @@ export function useVideoEditor(): VideoEditorState & VideoEditorActions {
             setError(err instanceof Error ? err.message : "Save to library failed");
             setStatus("idle");
         }
-    };
+    }, [saveFileName, slidesSpecPath, slidesOutputDir, slideTemplate, selectedProjectId]);
+
+    // Save to library
+    const handleSaveToLibrary = useCallback(async () => {
+        if (saveTarget === "slides") {
+            await handleSaveSlidesToLibrary();
+        } else {
+            await handleSaveVideoToLibrary();
+        }
+    }, [saveTarget, handleSaveSlidesToLibrary, handleSaveVideoToLibrary]);
 
     // AI Script Improvement
     const handleImproveScript = useCallback(async () => {

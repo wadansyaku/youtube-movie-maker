@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Image, Link2, Copy, ExternalLink, Plus, Video, Scissors } from 'lucide-react';
+import { Image as ImageIcon, Link2, Copy, ExternalLink, Plus, Video, Scissors } from 'lucide-react';
 import { ProductionEpisode, GenerationPrompt, EpisodeSource } from '../types';
 
 interface Props {
@@ -24,7 +24,7 @@ export function AssetsTab({ episode }: Props) {
                     href="/assets"
                     className="flex flex-col items-center gap-2 p-4 bg-gray-800/50 hover:bg-gray-800 rounded-xl border border-gray-700/50 hover:border-green-500/50 transition-all"
                 >
-                    <Image className="w-6 h-6 text-green-400" />
+                    <ImageIcon className="w-6 h-6 text-green-400" />
                     <span className="text-sm">素材ライブラリ</span>
                 </Link>
                 <Link
@@ -41,7 +41,7 @@ export function AssetsTab({ episode }: Props) {
             </div>
 
             {/* Generation Prompts */}
-            <Section title={`生成プロンプト (${episode.generationPrompts.length})`} icon={<Image size={18} />}>
+            <Section title={`生成プロンプト (${episode.generationPrompts.length})`} icon={<ImageIcon size={18} />}>
                 {episode.generationPrompts.length > 0 ? (
                     <div className="space-y-3">
                         {episode.generationPrompts.map((prompt) => (
@@ -50,7 +50,7 @@ export function AssetsTab({ episode }: Props) {
                     </div>
                 ) : (
                     <EmptyState
-                        icon={<Image className="w-8 h-8" />}
+                        icon={<ImageIcon className="w-8 h-8" />}
                         message="生成プロンプトがありません"
                         action={
                             <Link href="/ai-tools" className="text-indigo-400 hover:text-indigo-300 text-sm">

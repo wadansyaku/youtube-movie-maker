@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+/* eslint-disable @next/next/no-img-element */
+import { useState, useEffect, useCallback } from "react";
 import { Send, CheckCircle, XCircle, AlertCircle, User as UserIcon, Clock } from "lucide-react";
 const STATUS_LABELS = {
     pending: "Pending",
@@ -32,7 +33,7 @@ export default function FeedbackPanel({ assetId }: { assetId: string }) {
     const [loading, setLoading] = useState(true);
     const [comment, setComment] = useState("");
 
-    const fetchReviews = async () => {
+    const fetchReviews = useCallback(async () => {
         setLoading(true);
         try {
             const res = await fetch(`/api/reviews?assetId=${assetId}`);
@@ -45,11 +46,11 @@ export default function FeedbackPanel({ assetId }: { assetId: string }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [assetId]);
 
     useEffect(() => {
         fetchReviews();
-    }, [assetId]);
+    }, [fetchReviews]);
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -77,7 +78,15 @@ export default function FeedbackPanel({ assetId }: { assetId: string }) {
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-2">
                                     <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs text-white">
-                                        {review.reviewer.image ? <img src={review.reviewer.image} className="rounded-full" /> : <UserIcon size={12} />}
+                                        {review.reviewer.image ? (
+                                            <img
+                                                src={review.reviewer.image}
+                                                alt={review.reviewer.name || "Reviewer"}
+                                                className="rounded-full"
+                                            />
+                                        ) : (
+                                            <UserIcon size={12} />
+                                        )}
                                     </div>
                                     <span className="text-sm font-medium text-white">{review.reviewer.name || "Unknown"}</span>
                                 </div>

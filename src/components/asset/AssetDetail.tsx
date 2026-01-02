@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+/* eslint-disable @next/next/no-img-element */
+import { useState, useEffect, useCallback } from "react";
 import {
     X,
     Download,
@@ -130,13 +131,7 @@ export default function AssetDetail({
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<"details" | "versions" | "reviews">("details");
 
-    useEffect(() => {
-        if (isOpen && assetId) {
-            fetchAsset();
-        }
-    }, [isOpen, assetId]);
-
-    const fetchAsset = async () => {
+    const fetchAsset = useCallback(async () => {
         if (!assetId) return;
         setIsLoading(true);
         try {
@@ -148,7 +143,13 @@ export default function AssetDetail({
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [assetId]);
+
+    useEffect(() => {
+        if (isOpen && assetId) {
+            fetchAsset();
+        }
+    }, [isOpen, assetId, fetchAsset]);
 
     const formatFileSize = (bytes: number | null): string => {
         if (!bytes) return "-";

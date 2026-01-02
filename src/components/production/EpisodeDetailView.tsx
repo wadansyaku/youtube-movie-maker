@@ -9,7 +9,7 @@ import {
     Download,
     LayoutList,
     FileText,
-    Image,
+    Image as ImageIcon,
     Youtube,
     Loader2,
 } from 'lucide-react';
@@ -24,7 +24,7 @@ interface Props {
 const TABS: { key: TabType; label: string; icon: React.ReactNode }[] = [
     { key: 'overview', label: '概要', icon: <LayoutList size={16} /> },
     { key: 'script', label: '台本', icon: <FileText size={16} /> },
-    { key: 'assets', label: '素材', icon: <Image size={16} /> },
+    { key: 'assets', label: '素材', icon: <ImageIcon size={16} /> },
     { key: 'metadata', label: 'メタデータ', icon: <Youtube size={16} /> },
 ];
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { FileText, Play, Loader2, Download, Library, Image } from 'lucide-react';
+/* eslint-disable @next/next/no-img-element */
+import { FileText, Play, Loader2, Download, Library, Image as ImageIcon } from 'lucide-react';
 import { useVideoEditorContext } from './VideoEditorContext';
 import { API_BASE } from './types';
 
@@ -67,7 +68,7 @@ export function SlidesPanel() {
                         {status === 'rendering-slides' ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                            <Image className="w-4 h-4" />
+                            <ImageIcon className="w-4 h-4" />
                         )}
                         スライドをレンダリング
                     </button>

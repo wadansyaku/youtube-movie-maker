@@ -1,5 +1,7 @@
 # YouTube Movie Maker
 
+> UI上の旧名称は一部「CreativeFlow Studio」のままです（名称統一はTODO）。
+
 AI量産を助長しない、人間の創造的判断を必須とする動画制作パイプライン
 
 ## 特徴
@@ -29,6 +31,22 @@ npm run db:push
 npm run dev
 ```
 
+必要に応じて `.env.example` を参考に `.env` を作成してください。
+
+## 開発・テスト
+
+```bash
+# Next.js + FastAPI を同時起動
+npm run dev:all
+
+# 静的解析
+npm run lint
+npm run type-check
+
+# スライド生成の簡易テスト
+npm run test:slides
+```
+
 ## 主要機能
 
 1. **Series CRUD + World Bible**: シリーズ管理と世界観定義
@@ -39,6 +57,21 @@ npm run dev
 6. **YouTube Export**: メタデータ+素材台帳+編集意図のエクスポート
 7. **Dynamic Slides**: YAML/JSON → SVG/PNG → MP4 の自動生成
 8. **Cognitive Deck**: Progressive Disclosure プレゼンのHTML生成
+
+## ドキュメントの入口
+
+- `PROJECT.md`: 目的/スコープ/構成の詳細
+- `PROGRESS.md`: 実装進捗のスナップショット
+- `TODO.md`: 改善ロードマップ
+- `docs/compliance-checklist.md`: YouTube収益化のチェックリスト
+- `video_editor/README.md`: FastAPI/Streamlit 側の詳細
+- `archive/README.md`: 旧サブアプリの保管方針
+
+## 運用ステータス
+
+- 現行メイン: `src/` (Next.js) / `video_editor/` (FastAPI) / `slides/` (スライド生成)
+- 参照のみ: `archive/` 配下の旧サブアプリ
+- ドキュメントのみ: `production-os/README.md`
 
 ## ディレクトリ構造
 
@@ -56,7 +89,7 @@ npm run dev
 
 ## アーカイブ
 
-- 旧サブアプリは `archive/apps/` に退避しています。
+- 旧サブアプリは `archive/apps/` に退避しています（詳細は `archive/README.md`）。
 
 ## 安全設計
 

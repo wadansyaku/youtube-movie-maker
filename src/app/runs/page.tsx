@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
     ArrowLeft,
@@ -87,11 +87,7 @@ export default function RunsPage() {
         costUsd: "",
     });
 
-    useEffect(() => {
-        fetchRuns();
-    }, [platformFilter, searchQuery]);
-
-    const fetchRuns = async () => {
+    const fetchRuns = useCallback(async () => {
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
@@ -106,7 +102,11 @@ export default function RunsPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [platformFilter, searchQuery]);
+
+    useEffect(() => {
+        fetchRuns();
+    }, [fetchRuns]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

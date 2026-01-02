@@ -6,7 +6,7 @@ import {
     Film,
     Scissors,
     Bot,
-    Image,
+    Image as ImageIcon,
     FileText,
     Wand2,
     Youtube,
@@ -210,7 +210,7 @@ export default async function StudioPage() {
                         <p className="text-sm font-medium text-white">素材ライブラリ</p>
                         <p className="text-xs text-gray-500">画像・音声・動画</p>
                     </div>
-                    <Image className="h-5 w-5 text-gray-400" />
+                    <ImageIcon className="h-5 w-5 text-gray-400" />
                 </Link>
                 <Link
                     href="/prompts"

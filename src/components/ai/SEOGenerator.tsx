@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Loader2, Copy, Check, Tag, FileText, Image } from 'lucide-react';
+import { Search, Loader2, Copy, Check, Tag, FileText, Image as ImageIcon } from 'lucide-react';
 
 interface SEOGeneratorProps {
     episodeTitle: string;
@@ -173,7 +173,7 @@ export default function SEOGenerator({ episodeTitle, synopsis, onApply }: SEOGen
                     {/* Thumbnail Ideas */}
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
-                            <Image size={14} />
+                            <ImageIcon size={14} />
                             サムネイル案
                         </label>
                         <ul className="space-y-2">
