@@ -476,6 +476,45 @@ model Idea {
   productionEpisodes ProductionEpisode[]
 }
 
+// ============================================
+// Idea Kernel (MVP)
+// ============================================
+
+model PastVideo {
+  id            String   @id @default(uuid())
+  title         String
+  youtubeUrl    String?
+  publishedAt   DateTime?
+  summary       String?
+  tags          String   @default("[]") // JSON array
+  canonicalText String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model IdeaKernelIdea {
+  id                    String   @id @default(uuid())
+  status                String   @default("DRAFT") // DRAFT, EVALUATED, SELECTED, ARCHIVED
+  title                 String
+  hook                  String
+  claim                 String
+  templateFit           String   @default("[]") // JSON array
+  comparisons           String   @default("[]") // JSON array
+  experiment            String?
+  requiredEvidenceTypes String   @default("[]") // JSON array
+  estimatedCost         String   @default("{}") // JSON
+  riskFlags             String   @default("[]") // JSON array
+  canonicalText         String
+  scoreTotal            Float
+  scoreBreakdown        String   @default("{}") // JSON
+  noveltyScore          Float
+  similarityTop         String   @default("[]") // JSON array
+  selectedAt            DateTime?
+  selectionReason       String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
 model ProductionEpisode {
   id                String    @id @default(uuid())
   seriesId          String?

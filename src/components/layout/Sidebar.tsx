@@ -23,6 +23,7 @@ import {
     Youtube,
     Bot,
     Calendar,
+    Lightbulb,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLayout } from "./LayoutContext";
@@ -52,6 +53,7 @@ const advancedNavItems: NavItem[] = [
     { href: "/projects", label: "プロジェクト", icon: <FolderKanban size={20} /> },
     { href: "/video-editor", label: "動画エディタ", icon: <Scissors size={20} /> },
     { href: "/ai-tools", label: "AI Tools", icon: <Sparkles size={20} /> },
+    { href: "/idea-kernel", label: "Idea Kernel", icon: <Lightbulb size={20} /> },
     { href: "/runs", label: "生成ジョブ", icon: <Wand2 size={20} /> },
     { href: "/prompts", label: "プロンプト", icon: <FileText size={20} /> },
     { href: "/reviews", label: "レビュー", icon: <MessageSquare size={20} /> },
