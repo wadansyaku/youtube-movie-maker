@@ -50,6 +50,12 @@ type TemplateAudioHints = {
     narrationKeywords?: string[];
 };
 
+type Draftify<T> = T extends any
+    ? Omit<T, 'startSec' | 'endSec'> & { startSec?: number; endSec?: number }
+    : never;
+
+type DraftSection = Draftify<Section>;
+
 type TemplateDefinition = {
     id: string;
     name: string;
@@ -63,11 +69,17 @@ type TemplateDefinition = {
     sceneCount: number;
     themeId: 'medical-dark' | 'medical-light' | 'pop-quiz';
     themeLabel: string;
-    defaultSections: Section[];
+    defaultSections: DraftSection[];
     characters?: { id: string; name: string; color: string }[];
     rules: TemplatePacingRule;
     audioDefaults: TemplateAudioDefaults;
     audioHints?: TemplateAudioHints;
+};
+
+type TimelineResult = {
+    sections: Section[];
+    duration: number;
+    target?: number;
 };
 
 // テンプレート定義
@@ -304,7 +316,7 @@ const formatSec = (value: number) => {
     return Math.round(value * 10) / 10;
 };
 
-const getDefaultDuration = (section: Section) => {
+const getDefaultDuration = (section: DraftSection) => {
     switch (section.type) {
         case 'quiz':
             return 9;
@@ -338,7 +350,7 @@ const getDefaultDuration = (section: Section) => {
     }
 };
 
-const getMinDuration = (section: Section) => {
+const getMinDuration = (section: DraftSection) => {
     switch (section.type) {
         case 'transition':
             return 1.2;
@@ -367,15 +379,15 @@ const getMinDuration = (section: Section) => {
     }
 };
 
-const getSectionDuration = (section: Section) => {
-    const diff = section.endSec - section.startSec;
+const getSectionDuration = (section: DraftSection) => {
+    const diff = (section.endSec ?? 0) - (section.startSec ?? 0);
     if (Number.isFinite(diff) && diff > 0) {
         return roundDuration(diff);
     }
     return roundDuration(getDefaultDuration(section));
 };
 
-const rebuildTimeline = (sections: Section[]) => {
+const rebuildTimeline = (sections: DraftSection[]): TimelineResult => {
     let currentTime = 0;
     const updated = sections.map((section) => {
         const duration = getSectionDuration(section);
@@ -402,7 +414,7 @@ const getTemplateTargetDuration = (
     return fallback;
 };
 
-const autoPaceSections = (sections: Section[], targetDurationSec: number) => {
+const autoPaceSections = (sections: DraftSection[], targetDurationSec: number): TimelineResult => {
     const target = Math.max(10, targetDurationSec);
     const minDurations = sections.map(getMinDuration);
     const minTotal = minDurations.reduce((sum, value) => sum + value, 0);
@@ -657,7 +669,7 @@ export default function ShortsMakerView() {
             // 20シーンは3秒固定、それ以外は従来のロジック
             const duration = is20Scene
                 ? 3
-                : getDefaultDuration(section as Section);
+                : getDefaultDuration(section);
             const result = {
                 ...section,
                 startSec: currentTime,
@@ -853,7 +865,7 @@ export default function ShortsMakerView() {
     const applyAiPackageToConfig = (data: any) => {
         if (!config) return;
         const outlineQueue = Array.isArray(data?.outline) ? [...data.outline] : [];
-        const script = typeof data?.script === 'string' ? data.script : '';
+        const script: string = typeof data?.script === 'string' ? data.script : '';
         const fallbackTitle = (data?.title || config.title || '').toString();
         const takeOutline = (fallback: string) => {
             const next = outlineQueue.shift();
@@ -1514,7 +1526,7 @@ export default function ShortsMakerView() {
     };
 
     const buildTemplatePreviewConfig = (template: TemplateDefinition): VideoConfig => {
-        const baseTimeline = rebuildTimeline(template.defaultSections as Section[]);
+        const baseTimeline = rebuildTimeline(template.defaultSections);
         const target = getTemplateTargetDuration(
             baseTimeline.sections.length,
             template.rules,

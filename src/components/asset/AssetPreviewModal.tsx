@@ -30,13 +30,12 @@ export default function AssetPreviewModal({ asset, isOpen, onClose }: AssetPrevi
     const isVideo = !!asset && (asset.type === "video" || (asset.mimeType || "").startsWith("video/"));
     const isAudio = !!asset && (asset.type === "audio" || (asset.mimeType || "").startsWith("audio/"));
     const isJson = !!asset && (asset.type === "script" || (asset.mimeType || "").includes("json") || (asset.fileName || "").endsWith(".json"));
-
-    if (!isOpen || !asset) return null;
+    const isVisible = Boolean(isOpen && asset);
 
     useEffect(() => {
         let active = true;
 
-        if (!isJson) {
+        if (!isVisible || !isJson) {
             setJsonPreview(null);
             setPreviewError(null);
             return;
@@ -74,13 +73,15 @@ export default function AssetPreviewModal({ asset, isOpen, onClose }: AssetPrevi
         return () => {
             active = false;
         };
-    }, [assetUrl, isJson]);
+    }, [assetUrl, isJson, isVisible]);
 
     const handleAddAnnotation = (x: number, y: number, time: number) => {
         console.log("Annotation added at:", { x, y, time });
         // In a real app, this would open a popover to enter a comment
         setShowFeedback(true); // Open feedback panel to show where comment would go
     };
+
+    if (!isVisible) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">

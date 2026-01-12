@@ -42,7 +42,7 @@ const renderVideo = async (jobId: string, config: VideoConfig) => {
         const composition = await renderer.selectComposition({
             serveUrl,
             id: "MedicalShorts",
-            inputProps: config,
+            inputProps: config as unknown as Record<string, unknown>,
         });
 
         const fps = composition.fps || 30;
@@ -66,7 +66,7 @@ const renderVideo = async (jobId: string, config: VideoConfig) => {
             serveUrl,
             codec: "h264",
             outputLocation: outputPath,
-            inputProps: config,
+            inputProps: config as unknown as Record<string, unknown>,
             onProgress: (progress) => {
                 const percent = Math.round(progress.progress * 100);
                 if (percent === lastProgress) return;
