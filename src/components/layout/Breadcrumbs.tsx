@@ -6,7 +6,7 @@ import { ChevronRight, Home } from "lucide-react";
 
 const routeLabels: Record<string, string> = {
     dashboard: "ダッシュボード",
-    studio: "統合スタジオ",
+    create: "ワークスペース",
     items: "アイテム",
     templates: "テンプレート",
     projects: "プロジェクト",
@@ -17,12 +17,11 @@ const routeLabels: Record<string, string> = {
     prompts: "プロンプト",
     reviews: "レビュー",
     exports: "エクスポート",
-    production: "制作ボード",
-    automation: "自動制作",
+    production: "投稿管理",
+    studio: "制作スタジオ",
     "shorts-maker": "Shorts Maker",
-    "video-editor": "動画エディタ",
-    "ai-tools": "AI Tools",
     "cognitive-deck": "Cognitive Deck",
+    ai: "AI作成",
     scenes: "シーン",
     shots: "ショット",
     settings: "設定",
@@ -31,15 +30,15 @@ const routeLabels: Record<string, string> = {
 export default function Breadcrumbs() {
     const pathname = usePathname();
 
-    // Skip on dashboard
-    if (pathname === "/dashboard" || pathname === "/") return null;
+    // Skip on home/workspace
+    if (pathname === "/dashboard" || pathname === "/" || pathname === "/create") return null;
 
     const pathSegments = pathname.split("/").filter((segment) => segment);
 
     return (
         <nav className="flex items-center text-sm text-gray-400 mb-6">
             <Link
-                href="/dashboard"
+                href="/create"
                 className="flex items-center hover:text-white transition-colors"
             >
                 <Home size={16} />

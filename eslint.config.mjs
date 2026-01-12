@@ -4,7 +4,6 @@ const config = [
   {
     ignores: [
       "archive/**",
-      "video_editor/**",
       "out/**",
       "data/**",
       ".next/**",

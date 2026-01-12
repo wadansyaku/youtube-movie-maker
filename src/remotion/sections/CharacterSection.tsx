@@ -10,6 +10,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -83,7 +84,7 @@ export const CharacterSection: React.FC<Props> = ({
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
             }}
@@ -198,6 +199,8 @@ export const CharacterSection: React.FC<Props> = ({
                     textAlign: 'center',
                     maxWidth: '800px',
                     zIndex: 10,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
                 }}
             >
                 {section.introText}

@@ -8,6 +8,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -96,7 +97,7 @@ export const RevealSection: React.FC<Props> = ({
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
             }}
@@ -129,6 +130,8 @@ export const RevealSection: React.FC<Props> = ({
                         color: 'rgba(255, 255, 255, 0.8)',
                         textAlign: 'center',
                         animation: 'pulse 0.5s ease-in-out infinite',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
                     }}
                 >
                     {section.buildup}
@@ -170,6 +173,8 @@ export const RevealSection: React.FC<Props> = ({
                             textShadow: `0 0 60px ${themeColors.primary}40`,
                             maxWidth: '900px',
                             lineHeight: 1.3,
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
                         }}
                     >
                         {section.revealText}

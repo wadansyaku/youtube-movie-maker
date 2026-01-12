@@ -4,14 +4,16 @@ import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { join, posix } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { createVideoThumbnail } from '@/lib/video-thumbnails';
 
 // ============================================
 // Asset Actions
 // ============================================
 
-const ASSETS_DIR = join(process.cwd(), 'data', 'assets');
+const ASSETS_RELATIVE_DIR = posix.join('data', 'assets');
+const ASSETS_DIR = join(process.cwd(), ASSETS_RELATIVE_DIR);
 
 async function ensureAuth() {
     await requireUser();
@@ -24,6 +26,15 @@ export async function createAsset(formData: FormData) {
     const source = formData.get('source') as string || 'manual';
     const generationParams = formData.get('generationParams') as string || '{}';
     const metadata = formData.get('metadata') as string || '{}';
+
+    const parseJson = (value: string) => {
+        try {
+            const parsed = JSON.parse(value);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch {
+            return {};
+        }
+    };
 
     if (!file) {
         throw new Error('ファイルが必要です');
@@ -52,18 +63,34 @@ export async function createAsset(formData: FormData) {
         else assetType = 'other';
     }
 
+    const metadataObj = parseJson(metadata);
     const asset = await prisma.asset.create({
         data: {
             type: assetType,
             fileName: file.name,
-            filePath: `/data/assets/${uniqueName}`,
+            filePath: posix.join(ASSETS_RELATIVE_DIR, uniqueName),
             fileSize: file.size,
             mimeType: file.type,
             source,
             generationParams,
-            metadata,
+            metadata: JSON.stringify(metadataObj),
         },
     });
+
+    if (assetType === 'video') {
+        const thumbnailPath = await createVideoThumbnail(asset.id, asset.filePath);
+        if (thumbnailPath) {
+            await prisma.asset.update({
+                where: { id: asset.id },
+                data: {
+                    metadata: JSON.stringify({
+                        ...metadataObj,
+                        thumbnailPath,
+                    }),
+                },
+            });
+        }
+    }
 
     revalidatePath('/assets');
     return asset;

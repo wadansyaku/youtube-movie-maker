@@ -52,21 +52,14 @@ Project → Scene → Shot → Hero選定 → Review → Export
 - Prompt Pack（再利用可能なプロンプト）
 - AI補助（Script/Prompt/SEO 生成）
 - Review/Export（JSON出力・コンプライアンス確認）
-- 動画エディタ統合（Next.js + FastAPI）
 
 ---
 
 ## 起動方法
 
 ```bash
-# Next.js (localhost:3000) - メインUI + 動画エディタ
+# Next.js (localhost:3000) - メインUI
 npm run dev
-
-# Video Editor API (FastAPI, localhost:8502)
-npm run dev:api
-
-# Next.js + Video Editor API 同時起動
-npm run dev:all
 ```
 
 ---
@@ -113,7 +106,6 @@ S3_FORCE_PATH_STYLE="false"
 │   ├── lib/                # ユーティリティ/AI連携
 │   └── types/              # 共通型定義
 ├── archive/                # 旧サブアプリの退避領域
-├── video_editor/           # Streamlit + FastAPI
 ├── templates/              # World Bible/PromptPack テンプレート
 ├── docs/                   # コンプライアンス資料
 └── data/                   # SQLite DB など
@@ -135,19 +127,18 @@ S3_FORCE_PATH_STYLE="false"
 
 ### 現状構造の整理
 
-- UIは Next.js（制作管理）と Streamlit（動画編集）が共存し、FastAPI が動画処理の実体
-- ストレージは SQLite + ローカルパスで共有され、APIが絶対パスを返してクライアントが参照
-- 動画生成/編集は Python（MoviePy）で同期実行、Next.js はメタデータ管理に集中
-- Dynamic Slides は Node（satori + resvg）でPNG生成 → Python合成の二段構成
+- UI/Server は Next.js（App Router）で統一し、Prisma/SQLite で制作データを管理
+- Shorts のレンダリングは Remotion を Next.js API から実行し、生成物は Asset Library に登録
+- Dynamic Slides は Node（satori + resvg）でPNG生成 → FFmpeg で動画化のパイプライン
 
 ### データフロー（動画/スライド）
 
 ```
 [Next.js UI] -> [Next.js API] -> [DB: Prisma/SQLite]
       |
-      +-> [FastAPI] -> [Node (slides)] -> out/slides/*.png -> [FFmpeg/MoviePy] -> out/video_*.mp4
+      +-> [Remotion Renderer] -> data/assets/renders/*.mp4 -> [Asset Library登録]
       |
-      +-> [FastAPI] -> out/slides_packages/*.zip -> [Asset Library登録]
+      +-> [Node (slides)] -> out/slides/*.png -> [FFmpeg] -> out/video_*.mp4
 ```
 
 - UIと処理系が分離しているため、ローカルファイルパスがプロセス境界を跨いで流通する
@@ -155,12 +146,10 @@ S3_FORCE_PATH_STYLE="false"
 
 ### 重要なリスクと改善ポイント
 
-- **パイプライン分散**: Next.js / FastAPI / Streamlit / Node が別々に進化しやすく、破壊的変更の影響範囲が読みにくい
 - **ローカルパス露出**: クライアントにパスを返すため、UIが環境依存になりやすい
 - **同期処理/長時間ジョブ**: 動画・スライド生成が同期的で、失敗時の再開/再試行/進捗監視が弱い
-- **資産化の漏れ**: 動画編集結果は保存が任意で、生成Runの記録とAsset管理の一貫性が担保されにくい
-- **依存の二重化**: Node + Pythonの二重依存によりCI再現性が下がる（FFmpeg/フォント差異）
-- **入力検証の偏り**: UI側入力は手動依存で、APIはパス依存のため、仕様変更時の崩れが起きやすい
+- **資産化の漏れ**: 生成物の保存とメタデータ登録の不整合が起きやすい
+- **依存差異**: FFmpeg/フォント差異で再現性が下がる
 - **観測性不足**: 進捗/失敗原因がログ依存で、ジョブ単位の監査が難しい
 
 ### 改善方針（段階導入）

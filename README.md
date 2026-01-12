@@ -36,9 +36,6 @@ npm run dev
 ## 開発・テスト
 
 ```bash
-# Next.js + FastAPI を同時起動
-npm run dev:all
-
 # 静的解析
 npm run lint
 npm run type-check
@@ -64,12 +61,11 @@ npm run test:slides
 - `PROGRESS.md`: 実装進捗のスナップショット
 - `TODO.md`: 改善ロードマップ
 - `docs/compliance-checklist.md`: YouTube収益化のチェックリスト
-- `video_editor/README.md`: FastAPI/Streamlit 側の詳細
 - `archive/README.md`: 旧サブアプリの保管方針
 
 ## 運用ステータス
 
-- 現行メイン: `src/` (Next.js) / `video_editor/` (FastAPI) / `slides/` (スライド生成)
+- 現行メイン: `src/` (Next.js) / `slides/` (スライド生成)
 - 参照のみ: `archive/` 配下の旧サブアプリ
 - ドキュメントのみ: `production-os/README.md`
 
@@ -98,13 +94,6 @@ npm run test:slides
 - ファイルパス検証
 
 ## Dynamic Slides
-
-### 使い方（UI）
-
-1. `slides/spec.yml` を編集
-2. サイドバーから「動画エディタ」を開き、`Dynamic Slides` を ON
-3. `Generate Slides` → `Generate Video` の順に実行
-4. 必要なら「スライドデッキを保存」でZIPをAsset Libraryへ保存
 
 ### 使い方（CLI）
 
@@ -138,15 +127,7 @@ slides:
 - `out/slides/<job_id>/deck.json`
 - `out/slides_packages/<job_id>.zip`
 - `out/video_<job_id>.mp4`
-
-### 検証
-
-```bash
-# Dynamic Slides パイプラインのE2E確認
-python scripts/verify_slides_pipeline.py
-```
-
-※ FFmpeg が必要です。
+※ MP4 生成には FFmpeg が必要です。
 
 ## Cognitive Deck
 

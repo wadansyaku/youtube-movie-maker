@@ -4,6 +4,7 @@ import { Theme } from '../styles/theme';
 
 interface ConclusionSectionProps {
     text: string;
+    ctaText?: string;
     startFrame: number;
     endFrame: number;
     theme?: Theme;
@@ -11,6 +12,7 @@ interface ConclusionSectionProps {
 
 export const ConclusionSection: React.FC<ConclusionSectionProps> = ({
     text,
+    ctaText,
     startFrame,
     endFrame,
     theme,
@@ -80,6 +82,34 @@ export const ConclusionSection: React.FC<ConclusionSectionProps> = ({
                 >
                     {text}
                 </p>
+
+                {ctaText && (
+                    <div
+                        style={{
+                            marginTop: 32,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            padding: '12px 28px',
+                            borderRadius: 999,
+                            background: 'rgba(0,0,0,0.35)',
+                            border: '1px solid rgba(255,255,255,0.4)',
+                            boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
+                        }}
+                    >
+                        <span
+                            style={{
+                                color: 'white',
+                                fontSize: 28,
+                                fontWeight: 700,
+                                fontFamily: theme?.font,
+                                letterSpacing: '0.02em',
+                            }}
+                        >
+                            {ctaText}
+                        </span>
+                    </div>
+                )}
             </div>
         </AbsoluteFill>
     );

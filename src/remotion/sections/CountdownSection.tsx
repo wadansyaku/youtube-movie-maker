@@ -8,6 +8,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -74,7 +75,7 @@ export const CountdownSection: React.FC<Props> = ({
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
             }}
@@ -143,6 +144,8 @@ export const CountdownSection: React.FC<Props> = ({
                         fontWeight: '600',
                         color: 'rgba(255, 255, 255, 0.8)',
                         letterSpacing: '0.1em',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
                     }}
                 >
                     {section.label}

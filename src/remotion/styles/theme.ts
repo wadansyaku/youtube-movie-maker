@@ -17,13 +17,13 @@ export const themes: Record<string, Theme> = {
         accent: '#6366f1', // Indigo
         subAccent: '#10b981', // Emerald
         gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-        font: '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
+        font: '"M PLUS 1p", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
         captionShadow: `
-      -3px -3px 0 #000,  
-       3px -3px 0 #000,
-      -3px  3px 0 #000,
-       3px  3px 0 #000,
-       0 4px 8px rgba(0,0,0,0.5)
+      -2px -2px 0 #000,
+       2px -2px 0 #000,
+      -2px  2px 0 #000,
+       2px  2px 0 #000,
+       0 6px 14px rgba(0,0,0,0.6)
     `,
     },
     'medical-light': {
@@ -33,7 +33,7 @@ export const themes: Record<string, Theme> = {
         accent: '#0ea5e9', // Sky Blue
         subAccent: '#f59e0b', // Amber
         gradient: 'linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%)',
-        font: '"Hiragino Mincho ProN", "Yu Mincho", serif',
+        font: '"Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
         captionShadow: `
       -2px -2px 0 #fff,  
        2px -2px 0 #fff,

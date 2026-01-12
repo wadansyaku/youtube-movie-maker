@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Image as ImageIcon, Link2, Copy, ExternalLink, Plus, Video, Scissors } from 'lucide-react';
+import { Image as ImageIcon, Link2, Copy, ExternalLink, Plus, Video } from 'lucide-react';
 import { ProductionEpisode, GenerationPrompt, EpisodeSource } from '../types';
 
 interface Props {
@@ -12,13 +12,13 @@ export function AssetsTab({ episode }: Props) {
     return (
         <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <Link
-                    href="/video-editor"
+                    href="/studio"
                     className="flex flex-col items-center gap-2 p-4 bg-gray-800/50 hover:bg-gray-800 rounded-xl border border-gray-700/50 hover:border-indigo-500/50 transition-all"
                 >
                     <Video className="w-6 h-6 text-indigo-400" />
-                    <span className="text-sm">動画エディタ</span>
+                    <span className="text-sm">制作スタジオ</span>
                 </Link>
                 <Link
                     href="/assets"
@@ -26,13 +26,6 @@ export function AssetsTab({ episode }: Props) {
                 >
                     <ImageIcon className="w-6 h-6 text-green-400" />
                     <span className="text-sm">素材ライブラリ</span>
-                </Link>
-                <Link
-                    href="/ai-tools"
-                    className="flex flex-col items-center gap-2 p-4 bg-gray-800/50 hover:bg-gray-800 rounded-xl border border-gray-700/50 hover:border-purple-500/50 transition-all"
-                >
-                    <Scissors className="w-6 h-6 text-purple-400" />
-                    <span className="text-sm">AI生成</span>
                 </Link>
                 <button className="flex flex-col items-center gap-2 p-4 bg-gray-800/50 hover:bg-gray-800 rounded-xl border border-gray-700/50 hover:border-yellow-500/50 transition-all">
                     <Plus className="w-6 h-6 text-yellow-400" />
@@ -52,11 +45,6 @@ export function AssetsTab({ episode }: Props) {
                     <EmptyState
                         icon={<ImageIcon className="w-8 h-8" />}
                         message="生成プロンプトがありません"
-                        action={
-                            <Link href="/ai-tools" className="text-indigo-400 hover:text-indigo-300 text-sm">
-                                AI Toolsで生成 →
-                            </Link>
-                        }
                     />
                 )}
             </Section>

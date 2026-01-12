@@ -10,12 +10,8 @@ import {
     Clock,
     CheckCircle,
     AlertCircle,
-    Trash2,
     FolderOpen,
-    Sparkles,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import SEOGenerator from "@/components/ai/SEOGenerator";
 
 interface ExportRecord {
     id: string;
@@ -189,8 +185,6 @@ export default function ExportsPage() {
         });
     };
 
-    const selectedProject = projects.find((p) => p.id === selectedProjectId);
-
     return (
         <div className="max-w-5xl mx-auto">
             {/* Header */}
@@ -269,29 +263,6 @@ export default function ExportsPage() {
                 <div className="flex items-center justify-center gap-3 py-4 mb-6 bg-indigo-900/30 border border-indigo-700/50 rounded-xl">
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-indigo-500" />
                     <span className="text-indigo-300">エクスポート中...</span>
-                </div>
-            )}
-
-            {/* SEO Generator */}
-            {selectedProject && (
-                <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 mb-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Sparkles size={18} className="text-cyan-400" />
-                        <h2 className="font-medium text-white">YouTube SEO 最適化</h2>
-                    </div>
-                    <p className="text-sm text-gray-400 mb-4">
-                        プロジェクト「{selectedProject.name}」のYouTube用タイトル、説明文、タグをAIで生成します。
-                    </p>
-                    <SEOGenerator
-                        episodeTitle={selectedProject.name}
-                        synopsis={`${selectedProject._count.scenes}シーン、${selectedProject._count.projectAssets}アセットを含むプロジェクト`}
-                        onApply={(seo) => {
-                            navigator.clipboard.writeText(
-                                `タイトル: ${seo.titles[0]}\n\n説明文:\n${seo.description}\n\nタグ: ${seo.tags.join(', ')}`
-                            );
-                            alert('SEO情報をクリップボードにコピーしました！');
-                        }}
-                    />
                 </div>
             )}
 

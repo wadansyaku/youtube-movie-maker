@@ -99,7 +99,6 @@ export type AssetSource =
     | 'sora'
     | 'veo'
     | 'suno'
-    | 'video_editor'
     | 'dynamic_slides'
     | 'stability'
     | 'luma'

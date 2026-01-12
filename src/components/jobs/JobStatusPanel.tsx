@@ -8,7 +8,7 @@ import { Job, JobStatus, JobType } from '@/lib/jobQueue';
 
 const JOB_TYPE_LABELS: Record<JobType, string> = {
     video_generation: '動画生成',
-    slide_rendering: 'スライドレンダリング',
+    slide_rendering: 'スライド作成',
     transcription: '文字起こし',
     export: 'エクスポート',
     ai_improvement: 'AI改善',

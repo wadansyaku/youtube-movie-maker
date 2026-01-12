@@ -35,6 +35,7 @@ export const MedicalShorts: React.FC<VideoConfig> = (props) => {
         primary: currentTheme.accent,
         secondary: currentTheme.subAccent,
         background: currentTheme.bg,
+        fontFamily: currentTheme.font,
     };
 
     // Helper to convert seconds to frames
@@ -64,6 +65,7 @@ export const MedicalShorts: React.FC<VideoConfig> = (props) => {
                     return (
                         <ConclusionSection
                             text={section.onScreenText}
+                            ctaText={section.ctaText}
                             theme={currentTheme}
                             startFrame={startFrame}
                             endFrame={endFrame}
@@ -109,6 +111,7 @@ export const MedicalShorts: React.FC<VideoConfig> = (props) => {
                     return (
                         <RecapSection
                             text={section.onScreenText}
+                            points={section.points}
                             theme={currentTheme}
                             startFrame={startFrame}
                             endFrame={endFrame}

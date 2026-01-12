@@ -1,29 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-    LayoutDashboard,
-    FolderKanban,
-    Film,
+    Home,
     Image as ImageIcon,
+    Scissors,
     Wand2,
-    FileText,
-    MessageSquare,
-    Download,
     Settings,
     ChevronLeft,
     ChevronRight,
-    LogOut,
     User,
-    Sparkles,
-    CreditCard,
-    Scissors,
-    Youtube,
-    Bot,
-    Calendar,
-    Lightbulb,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLayout } from "./LayoutContext";
@@ -33,50 +21,24 @@ interface NavItem {
     href: string;
     label: string;
     icon: React.ReactNode;
-    badge?: number | string; // Updated badge type to allow string
+    badge?: string;
 }
 
-// Navigation Items - Simplified
-const mainNavItems: NavItem[] = [
-    { href: "/studio", label: "統合スタジオ", icon: <Sparkles size={20} /> },
-    { href: "/shorts-maker", label: "Shorts制作", icon: <Youtube size={20} /> },
-    { href: "/content-planner", label: "30日企画", icon: <Calendar size={20} /> },
-    { href: "/prompt-generator", label: "プロンプト生成", icon: <Wand2 size={20} />, badge: "AI" },
-    { href: "/automation", label: "自動制作", icon: <Bot size={20} /> },
-    { href: "/assets", label: "素材ライブラリ", icon: <ImageIcon size={20} /> },
-];
-
-const advancedNavItems: NavItem[] = [
-    { href: "/dashboard", label: "ダッシュボード", icon: <LayoutDashboard size={20} /> },
-    { href: "/production", label: "制作ボード", icon: <FolderKanban size={20} /> },
-    { href: "/series", label: "シリーズ", icon: <Film size={20} /> },
-    { href: "/projects", label: "プロジェクト", icon: <FolderKanban size={20} /> },
-    { href: "/video-editor", label: "動画エディタ", icon: <Scissors size={20} /> },
-    { href: "/ai-tools", label: "AI Tools", icon: <Sparkles size={20} /> },
-    { href: "/idea-kernel", label: "Idea Kernel", icon: <Lightbulb size={20} /> },
-    { href: "/runs", label: "生成ジョブ", icon: <Wand2 size={20} /> },
-    { href: "/prompts", label: "プロンプト", icon: <FileText size={20} /> },
-    { href: "/reviews", label: "レビュー", icon: <MessageSquare size={20} /> },
-    { href: "/exports", label: "エクスポート", icon: <Download size={20} /> },
-    { href: "/billing", label: "プラン・請求", icon: <CreditCard size={20} /> },
+// Simplified Navigation - core workspace only
+const navItems: NavItem[] = [
+    { href: "/create", label: "ワークスペース", icon: <Home size={20} /> },
+    { href: "/studio", label: "制作スタジオ", icon: <Scissors size={20} /> },
+    { href: "/assets", label: "素材", icon: <ImageIcon size={20} /> },
 ];
 
 export default function Sidebar() {
     const pathname = usePathname();
     const { isSidebarCollapsed, toggleSidebar } = useLayout();
+
     const isActive = (href: string) => {
-        if (href === "/dashboard") return pathname === href || pathname === "/";
+        if (href === "/") return pathname === "/";
         return pathname.startsWith(href);
     };
-
-    const isAdvancedRoute = advancedNavItems.some((item) => isActive(item.href));
-    const [showAdvanced, setShowAdvanced] = useState(isAdvancedRoute);
-
-    useEffect(() => {
-        if (isAdvancedRoute) {
-            setShowAdvanced(true);
-        }
-    }, [isAdvancedRoute]);
 
     const NavLink = ({ item }: { item: NavItem }) => (
         <Link
@@ -100,7 +62,7 @@ export default function Sidebar() {
                 )}
             </AnimatePresence>
             {item.badge && !isSidebarCollapsed && (
-                <span className="ml-auto px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                <span className="ml-auto px-2 py-0.5 text-xs bg-indigo-500 text-white rounded-full">
                     {item.badge}
                 </span>
             )}
@@ -144,57 +106,11 @@ export default function Sidebar() {
                 </button>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 p-3 space-y-6 overflow-y-auto overflow-x-hidden">
-                {/* Main */}
-                <div className="space-y-1">
-                    {!isSidebarCollapsed && (
-                        <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                            Main
-                        </p>
-                    )}
-                    {mainNavItems.map((item) => (
-                        <NavLink key={item.href} item={item} />
-                    ))}
-                </div>
-
-                {/* Advanced */}
-                <div className="space-y-1">
-                    {!isSidebarCollapsed && (
-                        <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                            Advanced
-                        </p>
-                    )}
-                    <button
-                        onClick={() => setShowAdvanced((prev) => !prev)}
-                        className={`flex w-full items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${showAdvanced
-                            ? "bg-gray-800 text-white"
-                            : "text-gray-400 hover:text-white hover:bg-gray-800"
-                            }`}
-                        aria-expanded={showAdvanced}
-                        aria-label="詳細機能の表示切り替え"
-                    >
-                        <ChevronRight
-                            size={18}
-                            className={`transition-transform ${showAdvanced ? "rotate-90" : ""}`}
-                        />
-                        {!isSidebarCollapsed && <span className="text-sm font-medium">詳細機能</span>}
-                    </button>
-                    <AnimatePresence initial={false}>
-                        {showAdvanced && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="space-y-1 overflow-hidden"
-                            >
-                                {advancedNavItems.map((item) => (
-                                    <NavLink key={item.href} item={item} />
-                                ))}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+            {/* Simplified Navigation */}
+            <nav className="flex-1 p-3 space-y-1 overflow-y-auto overflow-x-hidden">
+                {navItems.map((item) => (
+                    <NavLink key={item.href} item={item} />
+                ))}
             </nav>
 
             {/* User Section */}

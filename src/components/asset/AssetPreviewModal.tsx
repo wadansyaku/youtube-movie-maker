@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Play, Image as ImageIcon, Music, FileText, Download, MessageSquare, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { X, Download, MessageSquare } from "lucide-react";
 import { getAssetTypeIcon, formatDate, formatFileSize } from "@/lib/utils";
 import ReviewRequestModal from "@/components/review/ReviewRequestModal";
 import FeedbackPanel from "@/components/review/FeedbackPanel";
@@ -18,8 +18,63 @@ export default function AssetPreviewModal({ asset, isOpen, onClose }: AssetPrevi
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [showAnnotations, setShowAnnotations] = useState(false);
+    const [jsonPreview, setJsonPreview] = useState<string | null>(null);
+    const [previewError, setPreviewError] = useState<string | null>(null);
+    const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+
+    const assetUrl = useMemo(() => {
+        if (!asset?.id) return "";
+        return `/api/assets/${asset.id}/file`;
+    }, [asset?.id]);
+    const isImage = !!asset && (asset.type === "image" || asset.type === "thumbnail" || (asset.mimeType || "").startsWith("image/"));
+    const isVideo = !!asset && (asset.type === "video" || (asset.mimeType || "").startsWith("video/"));
+    const isAudio = !!asset && (asset.type === "audio" || (asset.mimeType || "").startsWith("audio/"));
+    const isJson = !!asset && (asset.type === "script" || (asset.mimeType || "").includes("json") || (asset.fileName || "").endsWith(".json"));
 
     if (!isOpen || !asset) return null;
+
+    useEffect(() => {
+        let active = true;
+
+        if (!isJson) {
+            setJsonPreview(null);
+            setPreviewError(null);
+            return;
+        }
+
+        setIsLoadingPreview(true);
+        setPreviewError(null);
+
+        fetch(assetUrl)
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error("プレビューを取得できませんでした");
+                }
+                return res.text();
+            })
+            .then((text) => {
+                if (!active) return;
+                try {
+                    const parsed = JSON.parse(text);
+                    setJsonPreview(JSON.stringify(parsed, null, 2));
+                } catch {
+                    setJsonPreview(text);
+                }
+            })
+            .catch((error) => {
+                if (!active) return;
+                setPreviewError(error instanceof Error ? error.message : "プレビューに失敗しました");
+                setJsonPreview(null);
+            })
+            .finally(() => {
+                if (!active) return;
+                setIsLoadingPreview(false);
+            });
+
+        return () => {
+            active = false;
+        };
+    }, [assetUrl, isJson]);
 
     const handleAddAnnotation = (x: number, y: number, time: number) => {
         console.log("Annotation added at:", { x, y, time });
@@ -58,12 +113,48 @@ export default function AssetPreviewModal({ asset, isOpen, onClose }: AssetPrevi
                     </div>
 
                     <div className="flex-1 flex items-center justify-center p-8 overflow-hidden relative">
-                        {/* Placeholder for actual media player */}
-                        <div className="text-center space-y-4 relative z-0">
-                            {getAssetTypeIcon(asset.type)}
-                            <p className="text-gray-500 text-sm">Preview functionality would play/render actual file here</p>
-                            <p className="text-xs text-gray-700 font-mono">{asset.filePath}</p>
-                        </div>
+                        {isImage && (
+                            <img
+                                src={assetUrl}
+                                alt={asset.fileName}
+                                className="max-h-full max-w-full rounded-lg object-contain shadow-xl"
+                            />
+                        )}
+
+                        {isVideo && (
+                            <video
+                                src={assetUrl}
+                                controls
+                                className="max-h-full max-w-full rounded-lg shadow-xl"
+                            />
+                        )}
+
+                        {isAudio && (
+                            <div className="w-full max-w-xl rounded-lg border border-white/10 bg-black/40 p-6 text-center">
+                                <div className="mb-4 text-4xl text-gray-500">{getAssetTypeIcon(asset.type)}</div>
+                                <audio src={assetUrl} controls className="w-full" />
+                            </div>
+                        )}
+
+                        {isJson && (
+                            <div className="w-full max-w-3xl rounded-lg border border-white/10 bg-black/40 p-4 text-left text-xs text-gray-300">
+                                {isLoadingPreview && <p className="text-gray-500">読み込み中...</p>}
+                                {previewError && <p className="text-red-300">{previewError}</p>}
+                                {jsonPreview && (
+                                    <pre className="max-h-[55vh] overflow-auto whitespace-pre-wrap break-words">
+                                        {jsonPreview}
+                                    </pre>
+                                )}
+                            </div>
+                        )}
+
+                        {!isImage && !isVideo && !isAudio && !isJson && (
+                            <div className="text-center space-y-4 relative z-0">
+                                {getAssetTypeIcon(asset.type)}
+                                <p className="text-gray-500 text-sm">プレビューに対応していません</p>
+                                <p className="text-xs text-gray-700 font-mono">{asset.filePath}</p>
+                            </div>
+                        )}
 
                         {/* Annotation Layer Overlay */}
                         {showAnnotations && (
@@ -99,9 +190,12 @@ export default function AssetPreviewModal({ asset, isOpen, onClose }: AssetPrevi
                                 >
                                     <MessageSquare size={16} /> Request Review
                                 </button>
-                                <button className="btn btn-primary flex items-center gap-2">
+                                <a
+                                    href={`${assetUrl}?download=1`}
+                                    className="btn btn-primary flex items-center gap-2"
+                                >
                                     <Download size={16} /> Download
-                                </button>
+                                </a>
                             </div>
                         </div>
 

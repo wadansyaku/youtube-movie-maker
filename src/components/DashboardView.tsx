@@ -47,14 +47,37 @@ export default function DashboardView({ stats, recentSeries }: Props) {
             <motion.div variants={item} className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                        ダッシュボード
+                        ホーム
                     </h1>
                     <p className="text-[var(--muted)] text-sm mt-1">
-                        World Bible駆動の動画制作パイプライン
+                        YouTube動画制作のすべてをここで
                     </p>
                 </div>
-                <Link href="/series/new" className="btn btn-primary shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40 transition-shadow">
-                    ＋ 新規シリーズ
+            </motion.div>
+
+            {/* Quick Actions - NEW */}
+            <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <Link href="/create" className="group p-6 rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-purple-500/5 hover:border-indigo-500/50 transition-all">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                            ✨
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-white text-lg">AI制作を始める</h3>
+                            <p className="text-sm text-gray-400">Shorts・企画・自動生成</p>
+                        </div>
+                    </div>
+                </Link>
+                <Link href="/production" className="group p-6 rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 hover:border-emerald-500/50 transition-all">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                            📋
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-white text-lg">制作を管理</h3>
+                            <p className="text-sm text-gray-400">カンバン・進捗管理</p>
+                        </div>
+                    </div>
                 </Link>
             </motion.div>
 

@@ -6,8 +6,6 @@ import { getStatusLabel, getStatusColor, formatDate } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import type { ProductionEpisodeWithRelations } from '@/types';
-import ScriptGenerator from '@/components/ai/ScriptGenerator';
-import { Sparkles, FileText } from 'lucide-react';
 
 interface Props {
     seriesId: string;
@@ -16,9 +14,6 @@ interface Props {
 
 export default function EpisodeListView({ seriesId, episodes }: Props) {
     const [isCreating, setIsCreating] = useState(false);
-    const [useAI, setUseAI] = useState(false);
-    const [aiTitle, setAiTitle] = useState('');
-    const [aiSynopsis, setAiSynopsis] = useState('');
 
     return (
         <div className="animate-fade-in">
@@ -44,7 +39,7 @@ export default function EpisodeListView({ seriesId, episodes }: Props) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                        onClick={() => { setIsCreating(false); setUseAI(false); }}
+                        onClick={() => { setIsCreating(false); }}
                     >
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}
@@ -55,92 +50,44 @@ export default function EpisodeListView({ seriesId, episodes }: Props) {
                         >
                             <h3 className="text-lg font-bold mb-4">新しいエピソード</h3>
 
-                            {/* Mode Toggle */}
-                            <div className="flex gap-2 mb-6">
-                                <button
-                                    type="button"
-                                    onClick={() => setUseAI(false)}
-                                    className={`flex-1 py-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${!useAI
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                                        }`}
-                                >
-                                    <FileText size={16} />
-                                    手動入力
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setUseAI(true)}
-                                    className={`flex-1 py-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${useAI
-                                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
-                                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                                        }`}
-                                >
-                                    <Sparkles size={16} />
-                                    AIでスクリプト生成
-                                </button>
-                            </div>
-
-                            {useAI ? (
-                                /* AI Script Generator Mode */
-                                <ScriptGenerator
-                                    seriesId={seriesId}
-                                    onScriptGenerated={(script) => {
-                                        setAiTitle(script.title);
-                                        setAiSynopsis(script.synopsis);
-                                    }}
-                                    onCreateEpisode={async (title, synopsis) => {
-                                        const formData = new FormData();
-                                        formData.set('title', title);
-                                        formData.set('synopsis', synopsis);
-                                        await createEpisode(seriesId, formData);
-                                        setIsCreating(false);
-                                        setUseAI(false);
-                                        setAiTitle('');
-                                        setAiSynopsis('');
-                                    }}
-                                />
-                            ) : (
-                                /* Manual Input Mode */
-                                <form action={async (formData) => {
-                                    await createEpisode(seriesId, formData);
-                                    setIsCreating(false);
-                                }}>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm mb-1">タイトル</label>
-                                            <input
-                                                type="text"
-                                                name="title"
-                                                className="input"
-                                                placeholder="エピソードタイトル"
-                                                required
-                                                autoFocus
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm mb-1">あらすじ (オプショナル)</label>
-                                            <textarea
-                                                name="synopsis"
-                                                className="textarea"
-                                                placeholder="簡単なあらすじ"
-                                            />
-                                        </div>
-                                        <div className="flex justify-end gap-2 pt-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsCreating(false)}
-                                                className="btn btn-secondary"
-                                            >
-                                                キャンセル
-                                            </button>
-                                            <button type="submit" className="btn btn-primary">
-                                                作成する
-                                            </button>
-                                        </div>
+                            <form action={async (formData) => {
+                                await createEpisode(seriesId, formData);
+                                setIsCreating(false);
+                            }}>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm mb-1">タイトル</label>
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            className="input"
+                                            placeholder="エピソードタイトル"
+                                            required
+                                            autoFocus
+                                        />
                                     </div>
-                                </form>
-                            )}
+                                    <div>
+                                        <label className="block text-sm mb-1">あらすじ (オプショナル)</label>
+                                        <textarea
+                                            name="synopsis"
+                                            className="textarea"
+                                            placeholder="簡単なあらすじ"
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-2 pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsCreating(false)}
+                                            className="btn btn-secondary"
+                                        >
+                                            キャンセル
+                                        </button>
+                                        <button type="submit" className="btn btn-primary">
+                                            作成する
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </motion.div>
                     </motion.div>
                 )}

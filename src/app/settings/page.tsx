@@ -1,6 +1,7 @@
 import {
     getApiKey,
     saveApiKey,
+    testGeminiApiKey,
     getRunwayApiKey,
     saveRunwayApiKey,
     getElevenLabsApiKey,
@@ -14,6 +15,7 @@ import {
     getStripeWebhookSecret,
     saveStripeWebhookSecret,
 } from './actions';
+import ApiKeyForm from '@/components/settings/ApiKeyForm';
 
 export default async function SettingsPage() {
     const geminiKey = await getApiKey();
@@ -39,21 +41,15 @@ export default async function SettingsPage() {
                     AI Copilot機能（Script Generator、Prompt Optimizer、SEO Generator等）に使用します。
                 </p>
 
-                <form action={saveApiKey} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Gemini API Key</label>
-                        <input
-                            type="password"
-                            name="apiKey"
-                            defaultValue={geminiKey || ''}
-                            placeholder="AIzaSy..."
-                            className="input w-full font-mono"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        保存
-                    </button>
-                </form>
+                <ApiKeyForm
+                    label="Gemini API Key"
+                    defaultValue={geminiKey || ''}
+                    placeholder="AIzaSy..."
+                    action={saveApiKey}
+                    testAction={testGeminiApiKey}
+                    submitLabel="保存"
+                    testLabel="キーをテスト"
+                />
 
                 <div className="mt-4 text-xs text-[var(--muted)]">
                     <a
@@ -76,21 +72,13 @@ export default async function SettingsPage() {
                     Gen-3 Alpha を使用した映像生成をアプリ内で直接行えます。
                 </p>
 
-                <form action={saveRunwayApiKey} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Runway API Key</label>
-                        <input
-                            type="password"
-                            name="apiKey"
-                            defaultValue={runwayKey || ''}
-                            placeholder="rway_..."
-                            className="input w-full font-mono"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        保存
-                    </button>
-                </form>
+                <ApiKeyForm
+                    label="Runway API Key"
+                    defaultValue={runwayKey || ''}
+                    placeholder="rway_..."
+                    action={saveRunwayApiKey}
+                    submitLabel="保存"
+                />
 
                 <div className="mt-4 text-xs text-[var(--muted)]">
                     <a
@@ -113,21 +101,13 @@ export default async function SettingsPage() {
                     ナレーション音声の自動生成に使用します。多言語対応。
                 </p>
 
-                <form action={saveElevenLabsApiKey} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">ElevenLabs API Key</label>
-                        <input
-                            type="password"
-                            name="apiKey"
-                            defaultValue={elevenLabsKey || ''}
-                            placeholder="sk_..."
-                            className="input w-full font-mono"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        保存
-                    </button>
-                </form>
+                <ApiKeyForm
+                    label="ElevenLabs API Key"
+                    defaultValue={elevenLabsKey || ''}
+                    placeholder="sk_..."
+                    action={saveElevenLabsApiKey}
+                    submitLabel="保存"
+                />
 
                 <div className="mt-4 text-xs text-[var(--muted)]">
                     <a
@@ -150,21 +130,13 @@ export default async function SettingsPage() {
                     Stable Diffusion 3 でサムネイル画像を生成します。
                 </p>
 
-                <form action={saveStabilityApiKey} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Stability API Key</label>
-                        <input
-                            type="password"
-                            name="apiKey"
-                            defaultValue={stabilityKey || ''}
-                            placeholder="sk-..."
-                            className="input w-full font-mono"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        保存
-                    </button>
-                </form>
+                <ApiKeyForm
+                    label="Stability API Key"
+                    defaultValue={stabilityKey || ''}
+                    placeholder="sk-..."
+                    action={saveStabilityApiKey}
+                    submitLabel="保存"
+                />
 
                 <div className="mt-4 text-xs text-[var(--muted)]">
                     <a
@@ -187,53 +159,33 @@ export default async function SettingsPage() {
                     サブスクリプション決済機能に使用します。
                 </p>
 
-                <form action={saveStripeSecretKey} className="space-y-4 mb-6">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Secret Key</label>
-                        <input
-                            type="password"
-                            name="apiKey"
-                            defaultValue={stripeSecretKey || ''}
-                            placeholder="sk_live_..."
-                            className="input w-full font-mono"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        保存
-                    </button>
-                </form>
+                <div className="mb-6">
+                    <ApiKeyForm
+                        label="Secret Key"
+                        defaultValue={stripeSecretKey || ''}
+                        placeholder="sk_live_..."
+                        action={saveStripeSecretKey}
+                        submitLabel="保存"
+                    />
+                </div>
 
-                <form action={saveStripePublishableKey} className="space-y-4 mb-6">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Publishable Key</label>
-                        <input
-                            type="password"
-                            name="apiKey"
-                            defaultValue={stripePublishableKey || ''}
-                            placeholder="pk_live_..."
-                            className="input w-full font-mono"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        保存
-                    </button>
-                </form>
+                <div className="mb-6">
+                    <ApiKeyForm
+                        label="Publishable Key"
+                        defaultValue={stripePublishableKey || ''}
+                        placeholder="pk_live_..."
+                        action={saveStripePublishableKey}
+                        submitLabel="保存"
+                    />
+                </div>
 
-                <form action={saveStripeWebhookSecret} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Webhook Secret</label>
-                        <input
-                            type="password"
-                            name="apiKey"
-                            defaultValue={stripeWebhookSecret || ''}
-                            placeholder="whsec_..."
-                            className="input w-full font-mono"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        保存
-                    </button>
-                </form>
+                <ApiKeyForm
+                    label="Webhook Secret"
+                    defaultValue={stripeWebhookSecret || ''}
+                    placeholder="whsec_..."
+                    action={saveStripeWebhookSecret}
+                    submitLabel="保存"
+                />
 
                 <div className="mt-4 text-xs text-[var(--muted)]">
                     <a

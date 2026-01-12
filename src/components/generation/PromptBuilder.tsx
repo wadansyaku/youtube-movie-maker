@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Zap, Maximize2, Wand2, Brain, Loader2 } from "lucide-react";
+import { Sparkles, Zap, Maximize2, Wand2 } from "lucide-react";
 
 interface PromptBuilderProps {
     onGenerate: (data: any) => void;
@@ -11,7 +11,6 @@ interface PromptBuilderProps {
 
 export default function PromptBuilder({ onGenerate, isGenerating, seriesId }: PromptBuilderProps) {
     const [prompt, setPrompt] = useState("");
-    const [negativePrompt, setNegativePrompt] = useState("");
     const [aspectRatio, setAspectRatio] = useState("16:9");
     const [platform, setPlatform] = useState("runway");
 
@@ -23,10 +22,6 @@ export default function PromptBuilder({ onGenerate, isGenerating, seriesId }: Pr
 
     // World Bible Context
     const [worldBible, setWorldBible] = useState<any>(null);
-
-    // AI Optimization
-    const [isOptimizing, setIsOptimizing] = useState(false);
-    const [suggestions, setSuggestions] = useState<string[]>([]);
 
     useEffect(() => {
         if (seriesId) {
@@ -82,42 +77,6 @@ export default function PromptBuilder({ onGenerate, isGenerating, seriesId }: Pr
         setPrompt(generatedPrompt + (prompt ? ` ${prompt}` : "")); // Append existing manual prompt if any
     };
 
-    const handleAIOptimize = async () => {
-        const currentPrompt = prompt || buildFullPrompt();
-        if (!currentPrompt.trim()) {
-            alert('プロンプトを入力してください');
-            return;
-        }
-
-        setIsOptimizing(true);
-        setSuggestions([]);
-
-        try {
-            const res = await fetch('/api/ai/optimize-prompt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    rawPrompt: currentPrompt,
-                    platform,
-                    seriesId: seriesId || undefined,
-                }),
-            });
-
-            if (!res.ok) {
-                throw new Error('AI optimization failed');
-            }
-
-            const data = await res.json();
-            setPrompt(data.optimizedPrompt);
-            setSuggestions(data.suggestions || []);
-        } catch (error) {
-            console.error('AI Optimize failed:', error);
-            alert('AI最適化に失敗しました。API Keyが設定されているか確認してください。');
-        } finally {
-            setIsOptimizing(false);
-        }
-    };
-
     const buildFullPrompt = () => {
         const parts = [];
         if (style) parts.push(`Style: ${style}`);
@@ -165,18 +124,6 @@ export default function PromptBuilder({ onGenerate, isGenerating, seriesId }: Pr
                         >
                             <Wand2 size={12} />
                             Auto-Assemble
-                        </button>
-                        <button
-                            onClick={handleAIOptimize}
-                            disabled={isOptimizing}
-                            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 disabled:opacity-50"
-                        >
-                            {isOptimizing ? (
-                                <Loader2 size={12} className="animate-spin" />
-                            ) : (
-                                <Brain size={12} />
-                            )}
-                            AI Optimize
                         </button>
                     </div>
                 </div>
@@ -228,24 +175,6 @@ export default function PromptBuilder({ onGenerate, isGenerating, seriesId }: Pr
                     </button>
                 </div>
             </div>
-
-            {/* AI Suggestions */}
-            {suggestions.length > 0 && (
-                <div className="mb-6 p-4 bg-emerald-900/20 border border-emerald-500/30 rounded-xl">
-                    <div className="flex items-center gap-2 mb-3">
-                        <Brain size={14} className="text-emerald-400" />
-                        <span className="text-xs font-medium text-emerald-400 uppercase tracking-wider">AI Suggestions</span>
-                    </div>
-                    <ul className="space-y-2">
-                        {suggestions.map((suggestion, index) => (
-                            <li key={index} className="text-sm text-gray-300 flex items-start gap-2">
-                                <span className="text-emerald-500">•</span>
-                                {suggestion}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
 
             {/* Parameters */}
             <div className="grid grid-cols-2 gap-4 mb-8">

@@ -8,6 +8,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -72,7 +73,7 @@ export const FactSection: React.FC<Props> = ({
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '60px',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
             }}
@@ -102,7 +103,7 @@ export const FactSection: React.FC<Props> = ({
             >
                 <span
                     style={{
-                        fontSize: '180px',
+                        fontSize: '168px',
                         fontWeight: '900',
                         background: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%)`,
                         backgroundClip: 'text',
@@ -117,7 +118,7 @@ export const FactSection: React.FC<Props> = ({
                 {section.unit && (
                     <span
                         style={{
-                            fontSize: '48px',
+                            fontSize: '44px',
                             fontWeight: 'bold',
                             color: 'rgba(255, 255, 255, 0.8)',
                         }}
@@ -132,15 +133,18 @@ export const FactSection: React.FC<Props> = ({
                 style={{
                     opacity: descriptionOpacity,
                     transform: `translateY(${descriptionY}px)`,
-                    fontSize: '48px',
+                    fontSize: '44px',
                     fontWeight: '600',
                     color: 'white',
                     textAlign: 'center',
                     marginTop: '40px',
-                    maxWidth: '900px',
-                    lineHeight: 1.4,
+                    maxWidth: '840px',
+                    lineHeight: 1.35,
                     position: 'relative',
                     zIndex: 10,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    textShadow: '0 6px 24px rgba(0,0,0,0.35)',
                 }}
             >
                 {section.description}

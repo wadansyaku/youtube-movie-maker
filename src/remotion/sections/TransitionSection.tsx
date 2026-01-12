@@ -8,6 +8,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -88,7 +89,7 @@ export const TransitionSection: React.FC<Props> = ({
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
                 ...getTransitionStyle(),
@@ -132,6 +133,8 @@ export const TransitionSection: React.FC<Props> = ({
                         textAlign: 'center',
                         textShadow: `0 0 40px ${themeColors.primary}`,
                         zIndex: 10,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
                     }}
                 >
                     {section.transitionText}

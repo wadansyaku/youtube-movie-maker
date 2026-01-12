@@ -24,7 +24,7 @@ export default function ProductionError({
                     エラーが発生しました
                 </h2>
                 <p className="text-gray-400 mb-6 text-sm">
-                    YouTube制作管理ページの読み込み中に問題が発生しました。
+                    投稿管理ページの読み込み中に問題が発生しました。
                     {error.message && (
                         <span className="block mt-2 text-red-400/80 text-xs font-mono">
                             {error.message}
@@ -39,8 +39,8 @@ export default function ProductionError({
                         <RefreshCw size={16} />
                         再試行
                     </button>
-                    <a href="/dashboard" className="btn btn-secondary">
-                        ダッシュボードへ
+                    <a href="/create" className="btn btn-secondary">
+                        ワークスペースへ
                     </a>
                 </div>
             </div>

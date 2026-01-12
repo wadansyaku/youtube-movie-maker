@@ -1,7 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/db';
 
-const MODEL_NAME = 'gemini-1.5-flash';
+const DEFAULT_MODELS = [
+    'gemini-3-flash',
+    'gemini-2.5-flash',
+    'gemini-flash-latest',
+];
 
 async function getApiKey() {
     const setting = await prisma.systemSettings.findUnique({
@@ -17,36 +21,55 @@ export async function generateText(prompt: string, temp = 0.7, options?: { model
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const modelName = options?.model || 'gemini-1.5-flash';
-    const model = genAI.getGenerativeModel({ model: modelName });
+    const modelCandidates = options?.model ? [options.model] : DEFAULT_MODELS;
+    let lastError: unknown;
 
-    const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-            temperature: temp,
-        },
-    });
+    for (const modelName of modelCandidates) {
+        try {
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: {
+                    temperature: temp,
+                },
+            });
+            return result.response.text();
+        } catch (error) {
+            lastError = error;
+        }
+    }
 
-    return result.response.text();
+    throw lastError;
 }
 
-export async function generateJSON(prompt: string, schema: any, modelName = MODEL_NAME) {
+export async function generateJSON(prompt: string, schema: any, modelName?: string) {
     const apiKey = await getApiKey();
     if (!apiKey) {
         throw new Error('API Keyが設定されていません。');
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-        model: modelName,
-        generationConfig: {
-            responseMimeType: 'application/json',
-        },
-    });
+    const modelCandidates = modelName ? [modelName] : DEFAULT_MODELS;
+    let lastError: unknown;
 
-    const result = await model.generateContent(
-        `${prompt}\n\nReturn JSON strictly following this schema:\n${JSON.stringify(schema)}`
-    );
+    for (const candidate of modelCandidates) {
+        try {
+            const model = genAI.getGenerativeModel({
+                model: candidate,
+                generationConfig: {
+                    responseMimeType: 'application/json',
+                },
+            });
 
-    return JSON.parse(result.response.text());
+            const result = await model.generateContent(
+                `${prompt}\n\nReturn JSON strictly following this schema:\n${JSON.stringify(schema)}`
+            );
+
+            return JSON.parse(result.response.text());
+        } catch (error) {
+            lastError = error;
+        }
+    }
+
+    throw lastError;
 }

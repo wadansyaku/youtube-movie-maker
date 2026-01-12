@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
 import { Theme } from '../styles/theme';
 
@@ -19,6 +19,7 @@ export const Caption: React.FC<CaptionProps> = ({
     theme,
 }) => {
     const frame = useCurrentFrame();
+    const { fps } = useVideoConfig();
 
     // Fade in/out animation
     const opacity = interpolate(
@@ -32,9 +33,17 @@ export const Caption: React.FC<CaptionProps> = ({
     const translateY = interpolate(
         frame,
         [startFrame, startFrame + 8],
-        [20, 0],
+        [32, 0],
         { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
     );
+
+    const pop = spring({
+        frame: frame - startFrame,
+        fps,
+        config: { damping: 200, stiffness: 140 },
+    });
+
+    const scale = interpolate(pop, [0, 1], [0.96, 1]);
 
     // Only render during active frames
     if (frame < startFrame || frame > endFrame) {
@@ -51,11 +60,14 @@ export const Caption: React.FC<CaptionProps> = ({
         >
             <div
                 style={{
-                    // Removed background box for cleaner look
-                    padding: '8px 16px',
-                    maxWidth: '94%',
+                    padding: '12px 20px',
+                    maxWidth: '88%',
                     opacity,
-                    transform: `translateY(${translateY}px)`,
+                    transform: `translateY(${translateY}px) scale(${scale})`,
+                    background: 'rgba(8, 12, 20, 0.58)',
+                    borderRadius: 18,
+                    border: `1px solid ${theme?.accent || 'rgba(255,255,255,0.3)'}`,
+                    boxShadow: '0 12px 30px rgba(0,0,0,0.35)',
                 }}
             >
                 <p
@@ -65,9 +77,9 @@ export const Caption: React.FC<CaptionProps> = ({
                         fontWeight: 900,
                         textAlign: 'center',
                         margin: 0,
-                        lineHeight: 1.2,
+                        lineHeight: 1.15,
                         fontFamily: theme?.font || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
-                        // Strong outline + shadow from theme
+                        letterSpacing: '0.02em',
                         textShadow: theme?.captionShadow,
                         whiteSpace: 'pre-wrap',
                     }}

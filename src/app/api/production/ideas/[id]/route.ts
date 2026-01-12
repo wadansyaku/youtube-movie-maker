@@ -85,6 +85,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
         const { id } = await params;
 
+        await prisma.productionEpisode.updateMany({
+            where: { ideaId: id },
+            data: { ideaId: null },
+        });
+
         await prisma.idea.delete({
             where: { id },
         });

@@ -67,6 +67,9 @@ model Asset {
   type             String   // video, audio, image, script, thumbnail
   fileName         String
   filePath         String
+  storageType      String   @default("local") // local, s3
+  storageKey       String?
+  storageBucket    String?
   fileSize         Int?
   mimeType         String?
   duration         Float?   // For video/audio in seconds

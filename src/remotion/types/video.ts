@@ -50,6 +50,7 @@ export type SectionType =
 export interface HookSection extends BaseSection {
   type: 'hook';
   onScreenText: string;
+  hookType?: 'number' | 'pattern-break' | 'conclusion' | 'question';
 }
 
 // 結論セクション
@@ -186,6 +187,19 @@ export interface Reference {
   url?: string;
 }
 
+export interface AudioPlan {
+  ttsProvider?: 'google-ai-studio' | 'elevenlabs' | 'none';
+  ttsPrompt?: string;
+  ttsText?: string;
+  ttsVoiceId?: string;
+  narrationPath?: string;
+  bgmProvider?: 'suno' | 'runway' | 'sora2' | 'local' | 'none';
+  bgmPrompt?: string;
+  bgmAssetId?: string;
+  sfxProvider?: 'local' | 'suno' | 'runway' | 'sora2' | 'none';
+  sfxNotes?: string;
+}
+
 // 動画全体の設定
 export interface VideoConfig {
   title: string;
@@ -200,6 +214,7 @@ export interface VideoConfig {
   sections: Section[];
   references?: Reference[];
   disclaimer?: string;
+  audioPlan?: AudioPlan;
   // メタデータ
   seriesId?: string;
   episodeNumber?: number;

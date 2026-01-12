@@ -40,11 +40,17 @@ export const KeyPointSection: React.FC<KeyPointSectionProps> = ({
     return (
         <AbsoluteFill
             style={{
-                // Use theme background, fall back to dark gradient if undefined
-                background: theme?.bg || 'linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)',
+                background: theme?.bg || '#0f172a',
                 opacity,
             }}
         >
+            <div
+                style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: `radial-gradient(circle at 20% 20%, ${theme?.accent || '#6366f1'}20 0%, transparent 50%)`,
+                }}
+            />
             {/* Point number badge */}
             {pointNumber && (
                 <div
@@ -53,7 +59,7 @@ export const KeyPointSection: React.FC<KeyPointSectionProps> = ({
                         top: 160,
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        background: theme?.accent || 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        background: theme?.accent || '#6366f1',
                         width: 70,
                         height: 70,
                         borderRadius: '50%',
@@ -63,7 +69,15 @@ export const KeyPointSection: React.FC<KeyPointSectionProps> = ({
                         boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
                     }}
                 >
-                    <span style={{ color: 'white', fontSize: 36, fontWeight: 800, fontFamily: theme?.font }}>
+                    <span
+                        style={{
+                            color: 'white',
+                            fontSize: 34,
+                            fontWeight: 800,
+                            fontFamily: theme?.font,
+                            textShadow: theme?.captionShadow,
+                        }}
+                    >
                         {pointNumber}
                     </span>
                 </div>

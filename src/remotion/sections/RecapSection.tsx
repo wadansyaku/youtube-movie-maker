@@ -5,6 +5,7 @@ import { Theme } from '../styles/theme';
 
 interface RecapSectionProps {
     text: string;
+    points?: string[];
     startFrame: number;
     endFrame: number;
     theme?: Theme;
@@ -12,6 +13,7 @@ interface RecapSectionProps {
 
 export const RecapSection: React.FC<RecapSectionProps> = ({
     text,
+    points = [],
     startFrame,
     endFrame,
     theme,
@@ -80,9 +82,9 @@ export const RecapSection: React.FC<RecapSectionProps> = ({
                     style={{
                         color: 'white',
                         fontSize: 52,
-                        fontWeight: 700,
-                        lineHeight: 1.5,
-                        textShadow: '3px 3px 6px rgba(0,0,0,0.2)',
+                        fontWeight: 800,
+                        lineHeight: 1.35,
+                        textShadow: theme?.captionShadow || '3px 3px 6px rgba(0,0,0,0.3)',
                         whiteSpace: 'pre-wrap',
                         margin: 0,
                         fontFamily: theme?.font,
@@ -90,6 +92,61 @@ export const RecapSection: React.FC<RecapSectionProps> = ({
                 >
                     {text}
                 </p>
+
+                {points.length > 0 && (
+                    <div
+                        style={{
+                            marginTop: 32,
+                            display: 'grid',
+                            gap: 16,
+                        }}
+                    >
+                        {points.slice(0, 3).map((point, index) => (
+                            <div
+                                key={`${point}-${index}`}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 16,
+                                    padding: '12px 20px',
+                                    borderRadius: 16,
+                                    background: 'rgba(0,0,0,0.35)',
+                                    border: `1px solid ${theme?.accent || 'rgba(255,255,255,0.25)'}`,
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        width: 36,
+                                        height: 36,
+                                        borderRadius: 12,
+                                        background: theme?.accent || '#4facfe',
+                                        color: 'white',
+                                        fontWeight: 800,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontFamily: theme?.font,
+                                    }}
+                                >
+                                    {index + 1}
+                                </div>
+                                <span
+                                    style={{
+                                        color: 'white',
+                                        fontSize: 34,
+                                        fontWeight: 600,
+                                        fontFamily: theme?.font,
+                                        textAlign: 'left',
+                                        flex: 1,
+                                        whiteSpace: 'pre-wrap',
+                                    }}
+                                >
+                                    {point}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* CTA Button */}
                 <div

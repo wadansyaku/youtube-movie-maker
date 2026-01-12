@@ -2,25 +2,49 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { generateText as genText, generateJSON as genJSON } from '@/lib/ai';
+import { generateJSON as genJSON } from '@/lib/ai';
 import { requireUser } from '@/lib/auth-guard';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 async function ensureAuth() {
     await requireUser();
 }
 
-export async function saveApiKey(formData: FormData) {
-    await ensureAuth();
-    const apiKey = formData.get('apiKey') as string;
-    if (!apiKey) return;
+type ActionResult = {
+    ok: boolean;
+    message: string;
+};
 
-    await prisma.systemSettings.upsert({
-        where: { key: 'gemini_api_key' },
-        update: { value: apiKey },
-        create: { key: 'gemini_api_key', value: apiKey },
-    });
+const GEMINI_MODELS = ['gemini-3-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
 
-    revalidatePath('/settings');
+async function saveSetting(key: string, formData: FormData): Promise<ActionResult> {
+    try {
+        await ensureAuth();
+        const apiKey = formData.get('apiKey') as string;
+        const trimmed = apiKey?.trim();
+        if (!trimmed) {
+            return { ok: false, message: 'APIキーを入力してください' };
+        }
+
+        await prisma.systemSettings.upsert({
+            where: { key },
+            update: { value: trimmed },
+            create: { key, value: trimmed },
+        });
+
+        revalidatePath('/settings');
+        return { ok: true, message: '保存しました' };
+    } catch (error) {
+        console.error(`Failed to save ${key}:`, error);
+        return {
+            ok: false,
+            message: error instanceof Error ? error.message : '保存に失敗しました',
+        };
+    }
+}
+
+export async function saveApiKey(formData: FormData): Promise<ActionResult> {
+    return saveSetting('gemini_api_key', formData);
 }
 
 export async function getApiKey() {
@@ -32,18 +56,8 @@ export async function getApiKey() {
 }
 
 // Runway API Key
-export async function saveRunwayApiKey(formData: FormData) {
-    await ensureAuth();
-    const apiKey = formData.get('apiKey') as string;
-    if (!apiKey) return;
-
-    await prisma.systemSettings.upsert({
-        where: { key: 'runway_api_key' },
-        update: { value: apiKey },
-        create: { key: 'runway_api_key', value: apiKey },
-    });
-
-    revalidatePath('/settings');
+export async function saveRunwayApiKey(formData: FormData): Promise<ActionResult> {
+    return saveSetting('runway_api_key', formData);
 }
 
 export async function getRunwayApiKey() {
@@ -55,18 +69,8 @@ export async function getRunwayApiKey() {
 }
 
 // ElevenLabs API Key
-export async function saveElevenLabsApiKey(formData: FormData) {
-    await ensureAuth();
-    const apiKey = formData.get('apiKey') as string;
-    if (!apiKey) return;
-
-    await prisma.systemSettings.upsert({
-        where: { key: 'elevenlabs_api_key' },
-        update: { value: apiKey },
-        create: { key: 'elevenlabs_api_key', value: apiKey },
-    });
-
-    revalidatePath('/settings');
+export async function saveElevenLabsApiKey(formData: FormData): Promise<ActionResult> {
+    return saveSetting('elevenlabs_api_key', formData);
 }
 
 export async function getElevenLabsApiKey() {
@@ -78,18 +82,8 @@ export async function getElevenLabsApiKey() {
 }
 
 // Stability AI API Key
-export async function saveStabilityApiKey(formData: FormData) {
-    await ensureAuth();
-    const apiKey = formData.get('apiKey') as string;
-    if (!apiKey) return;
-
-    await prisma.systemSettings.upsert({
-        where: { key: 'stability_api_key' },
-        update: { value: apiKey },
-        create: { key: 'stability_api_key', value: apiKey },
-    });
-
-    revalidatePath('/settings');
+export async function saveStabilityApiKey(formData: FormData): Promise<ActionResult> {
+    return saveSetting('stability_api_key', formData);
 }
 
 export async function getStabilityApiKey() {
@@ -101,18 +95,8 @@ export async function getStabilityApiKey() {
 }
 
 // Stripe API Keys
-export async function saveStripeSecretKey(formData: FormData) {
-    await ensureAuth();
-    const apiKey = formData.get('apiKey') as string;
-    if (!apiKey) return;
-
-    await prisma.systemSettings.upsert({
-        where: { key: 'stripe_secret_key' },
-        update: { value: apiKey },
-        create: { key: 'stripe_secret_key', value: apiKey },
-    });
-
-    revalidatePath('/settings');
+export async function saveStripeSecretKey(formData: FormData): Promise<ActionResult> {
+    return saveSetting('stripe_secret_key', formData);
 }
 
 export async function getStripeSecretKey() {
@@ -123,18 +107,8 @@ export async function getStripeSecretKey() {
     return setting?.value;
 }
 
-export async function saveStripePublishableKey(formData: FormData) {
-    await ensureAuth();
-    const apiKey = formData.get('apiKey') as string;
-    if (!apiKey) return;
-
-    await prisma.systemSettings.upsert({
-        where: { key: 'stripe_publishable_key' },
-        update: { value: apiKey },
-        create: { key: 'stripe_publishable_key', value: apiKey },
-    });
-
-    revalidatePath('/settings');
+export async function saveStripePublishableKey(formData: FormData): Promise<ActionResult> {
+    return saveSetting('stripe_publishable_key', formData);
 }
 
 export async function getStripePublishableKey() {
@@ -145,18 +119,45 @@ export async function getStripePublishableKey() {
     return setting?.value;
 }
 
-export async function saveStripeWebhookSecret(formData: FormData) {
-    await ensureAuth();
-    const apiKey = formData.get('apiKey') as string;
-    if (!apiKey) return;
+export async function saveStripeWebhookSecret(formData: FormData): Promise<ActionResult> {
+    return saveSetting('stripe_webhook_secret', formData);
+}
 
-    await prisma.systemSettings.upsert({
-        where: { key: 'stripe_webhook_secret' },
-        update: { value: apiKey },
-        create: { key: 'stripe_webhook_secret', value: apiKey },
-    });
+export async function testGeminiApiKey(formData: FormData): Promise<ActionResult> {
+    try {
+        await ensureAuth();
+        const apiKey = formData.get('apiKey') as string;
+        const trimmed = apiKey?.trim();
+        if (!trimmed) {
+            return { ok: false, message: 'APIキーを入力してください' };
+        }
 
-    revalidatePath('/settings');
+        const genAI = new GoogleGenerativeAI(trimmed);
+        let lastError: unknown;
+
+        for (const modelName of GEMINI_MODELS) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                await model.generateContent({
+                    contents: [{ role: 'user', parts: [{ text: 'Ping' }] }],
+                });
+                return { ok: true, message: 'Geminiキーを確認しました' };
+            } catch (error) {
+                lastError = error;
+            }
+        }
+
+        return {
+            ok: false,
+            message: lastError instanceof Error ? lastError.message : 'Geminiキーの検証に失敗しました',
+        };
+    } catch (error) {
+        console.error('Failed to test Gemini API key:', error);
+        return {
+            ok: false,
+            message: error instanceof Error ? error.message : 'Geminiキーの検証に失敗しました',
+        };
+    }
 }
 
 export async function getStripeWebhookSecret() {

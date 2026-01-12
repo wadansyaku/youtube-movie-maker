@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { createVideoThumbnail } from "@/lib/video-thumbnails";
 
 // GET /api/assets - List all assets
 export async function GET(request: Request) {
@@ -124,6 +125,7 @@ export async function POST(request: Request) {
         }
 
         // Create asset
+        const metadataObj = metadata || {};
         const asset = await prisma.asset.create({
             data: {
                 fileName,
@@ -134,7 +136,7 @@ export async function POST(request: Request) {
                 mimeType: mimeType || null,
                 duration: duration || null,
                 resolution: resolution || null,
-                metadata: JSON.stringify(metadata || {}),
+                metadata: JSON.stringify(metadataObj),
                 generationParams: JSON.stringify(generationParams || {}),
                 licenseType: licenseType || null,
                 creditRequired: creditRequired || null,
@@ -145,6 +147,21 @@ export async function POST(request: Request) {
                 assetTags: { include: { tag: true } },
             },
         });
+
+        if (type === "video") {
+            const thumbnailPath = await createVideoThumbnail(asset.id, asset.filePath);
+            if (thumbnailPath) {
+                await prisma.asset.update({
+                    where: { id: asset.id },
+                    data: {
+                        metadata: JSON.stringify({
+                            ...metadataObj,
+                            thumbnailPath,
+                        }),
+                    },
+                });
+            }
+        }
 
         // Create generation run if prompt/model info provided
         if (prompt || modelVersion || platform) {

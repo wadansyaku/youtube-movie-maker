@@ -8,6 +8,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -70,7 +71,7 @@ export const StorySection: React.FC<Props> = ({
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '60px',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
             }}
@@ -128,6 +129,8 @@ export const StorySection: React.FC<Props> = ({
                         textAlign: 'center',
                         lineHeight: 1.5,
                         textShadow: `0 0 40px ${moodColors.accent}40`,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
                     }}
                 >
                     {section.narration}
@@ -142,6 +145,8 @@ export const StorySection: React.FC<Props> = ({
                             color: 'rgba(255, 255, 255, 0.6)',
                             textAlign: 'center',
                             fontStyle: 'italic',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
                         }}
                     >
                         ✨ {section.visualDescription}

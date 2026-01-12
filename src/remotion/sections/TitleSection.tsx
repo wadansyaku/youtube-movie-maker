@@ -8,6 +8,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -73,7 +74,7 @@ export const TitleSection: React.FC<Props> = ({
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '60px',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
             }}
@@ -138,7 +139,7 @@ export const TitleSection: React.FC<Props> = ({
                 style={{
                     opacity: titleOpacity,
                     transform: `scale(${titleScale})`,
-                    fontSize: '72px',
+                    fontSize: '76px',
                     fontWeight: '900',
                     textAlign: 'center',
                     background: `linear-gradient(135deg, white 0%, ${themeColors.primary} 50%, ${themeColors.secondary} 100%)`,
@@ -147,6 +148,10 @@ export const TitleSection: React.FC<Props> = ({
                     WebkitTextFillColor: 'transparent',
                     lineHeight: 1.2,
                     textShadow: `0 0 60px ${themeColors.primary}40`,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    letterSpacing: '0.02em',
+                    maxWidth: '90%',
                 }}
             >
                 {section.mainTitle}
@@ -162,6 +167,9 @@ export const TitleSection: React.FC<Props> = ({
                         color: 'rgba(255, 255, 255, 0.8)',
                         marginTop: '24px',
                         textAlign: 'center',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        maxWidth: '80%',
                     }}
                 >
                     {section.subtitle}

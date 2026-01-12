@@ -11,8 +11,6 @@ import {
     Video,
     Trash2,
     Edit2,
-    Brain,
-    Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 
@@ -56,7 +54,6 @@ export default function UnifiedSceneHierarchy({
     );
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editingValue, setEditingValue] = useState("");
-    const [generatingForScene, setGeneratingForScene] = useState<string | null>(null);
 
     const apiPrefix = mode === 'episode'
         ? `/api/episodes/${ownerId}`
@@ -109,51 +106,6 @@ export default function UnifiedSceneHierarchy({
             onScenesChange(updatedScenes);
         } catch (error) {
             console.error("Failed to add shot:", error);
-        }
-    };
-
-    const handleAIGenerateShots = async (scene: Scene, sceneIndex: number) => {
-        const description = scene.description || prompt('シーンの説明を入力してください（例: 雨の中を歩くサムライのシーン）');
-        if (!description) return;
-
-        setGeneratingForScene(scene.id);
-        try {
-            const res = await fetch('/api/ai/describe-shots', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sceneDescription: description }),
-            });
-
-            if (!res.ok) throw new Error('AI shot generation failed');
-
-            const data = await res.json();
-            const shots = data.shots || [];
-
-            // Create each shot via API
-            for (const shot of shots) {
-                await fetch(`${apiPrefix}/scenes/${scene.id}/shots`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: shot.name,
-                        description: shot.promptSuggestion || shot.description,
-                        durationSeconds: shot.duration,
-                        cameraMovement: shot.cameraMovement,
-                    }),
-                });
-            }
-
-            // Refresh scenes
-            const refreshRes = await fetch(`${apiPrefix}/scenes`);
-            const refreshData = await refreshRes.json();
-            if (Array.isArray(refreshData)) {
-                onScenesChange(refreshData);
-            }
-        } catch (error) {
-            console.error('AI shot generation failed:', error);
-            alert('AIショット生成に失敗しました。API Keyを確認してください。');
-        } finally {
-            setGeneratingForScene(null);
         }
     };
 
@@ -372,18 +324,6 @@ export default function UnifiedSceneHierarchy({
                                                 title="ショット追加"
                                             >
                                                 <Plus size={14} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleAIGenerateShots(scene, sceneIndex)}
-                                                disabled={generatingForScene === scene.id}
-                                                className="p-1 text-gray-400 hover:text-emerald-400 rounded disabled:opacity-50"
-                                                title="AIでショット分解"
-                                            >
-                                                {generatingForScene === scene.id ? (
-                                                    <Loader2 size={14} className="animate-spin" />
-                                                ) : (
-                                                    <Brain size={14} />
-                                                )}
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteScene(scene.id)}

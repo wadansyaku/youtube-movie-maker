@@ -8,6 +8,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -78,7 +79,7 @@ export const ComparisonSection: React.FC<Props> = ({
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '60px',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
                 position: 'relative',
                 overflow: 'hidden',
             }}
@@ -131,13 +132,14 @@ export const ComparisonSection: React.FC<Props> = ({
                     {/* ラベル */}
                     <div
                         style={{
-                            fontSize: '28px',
+                            fontSize: '26px',
                             fontWeight: 'bold',
                             color: themeColors.primary,
                             padding: '8px 24px',
                             background: `${themeColors.primary}20`,
                             borderRadius: '12px',
                             border: `2px solid ${themeColors.primary}40`,
+                            letterSpacing: '0.03em',
                         }}
                     >
                         ❌ {section.leftLabel}
@@ -146,7 +148,7 @@ export const ComparisonSection: React.FC<Props> = ({
                     {/* コンテンツ */}
                     <div
                         style={{
-                            fontSize: '36px',
+                            fontSize: '34px',
                             fontWeight: '600',
                             color: 'white',
                             textAlign: 'center',
@@ -154,10 +156,13 @@ export const ComparisonSection: React.FC<Props> = ({
                             background: 'rgba(0,0,0,0.3)',
                             borderRadius: '16px',
                             border: `2px solid ${themeColors.primary}30`,
-                            minHeight: '150px',
+                            minHeight: '160px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                            boxShadow: '0 12px 24px rgba(0,0,0,0.35)',
                         }}
                     >
                         {section.leftContent}
@@ -169,11 +174,12 @@ export const ComparisonSection: React.FC<Props> = ({
                     style={{
                         opacity: vsOpacity,
                         transform: `scale(${vsScale})`,
-                        fontSize: '48px',
+                        fontSize: '52px',
                         fontWeight: '900',
                         color: 'white',
-                        textShadow: '0 0 30px rgba(255,255,255,0.5)',
+                        textShadow: '0 0 40px rgba(255,255,255,0.6)',
                         flexShrink: 0,
+                        letterSpacing: '0.1em',
                     }}
                 >
                     VS
@@ -194,13 +200,14 @@ export const ComparisonSection: React.FC<Props> = ({
                     {/* ラベル */}
                     <div
                         style={{
-                            fontSize: '28px',
+                            fontSize: '26px',
                             fontWeight: 'bold',
                             color: themeColors.secondary,
                             padding: '8px 24px',
                             background: `${themeColors.secondary}20`,
                             borderRadius: '12px',
                             border: `2px solid ${themeColors.secondary}40`,
+                            letterSpacing: '0.03em',
                         }}
                     >
                         ✅ {section.rightLabel}
@@ -209,7 +216,7 @@ export const ComparisonSection: React.FC<Props> = ({
                     {/* コンテンツ */}
                     <div
                         style={{
-                            fontSize: '36px',
+                            fontSize: '34px',
                             fontWeight: '600',
                             color: 'white',
                             textAlign: 'center',
@@ -217,11 +224,13 @@ export const ComparisonSection: React.FC<Props> = ({
                             background: 'rgba(0,0,0,0.3)',
                             borderRadius: '16px',
                             border: `2px solid ${themeColors.secondary}30`,
-                            minHeight: '150px',
+                            minHeight: '160px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             boxShadow: `0 0 30px ${themeColors.secondary}20`,
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
                         }}
                     >
                         {section.rightContent}

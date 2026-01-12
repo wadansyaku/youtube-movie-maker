@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import archiver from "archiver";
+import fs from "fs";
+import path from "path";
 import { PassThrough } from "stream";
 
 interface RouteParams {
@@ -41,6 +43,60 @@ export async function POST(request: Request, { params }: RouteParams) {
         const archive = archiver("zip", { zlib: { level: 9 } });
         const passThrough = new PassThrough();
         archive.pipe(passThrough);
+        const projectRoot = process.cwd();
+        const missingAssets: Array<{ id: string; fileName: string; filePath: string | null }> = [];
+        const assetZipIndex = new Map<string, { zipPath: string; included: boolean }>();
+
+        const sanitize = (value: string) =>
+            value.replace(/[^a-zA-Z0-9._-]/g, "_") || "asset";
+
+        const resolveAssetPath = (filePath?: string | null): string | null => {
+            if (!filePath || typeof filePath !== "string") return null;
+            const trimmed = filePath.trim();
+            if (!trimmed) return null;
+            if (/^(https?:|s3:)/i.test(trimmed)) return null;
+
+            const candidates: string[] = [];
+            if (path.isAbsolute(trimmed)) {
+                candidates.push(path.resolve(trimmed));
+                candidates.push(path.resolve(projectRoot, trimmed.replace(/^\/+/, "")));
+            } else {
+                candidates.push(path.resolve(projectRoot, trimmed.replace(/^\/+/, "")));
+            }
+
+            for (const candidate of candidates) {
+                const relative = path.relative(projectRoot, candidate);
+                if (relative.startsWith("..") || path.isAbsolute(relative)) continue;
+                if (!fs.existsSync(candidate)) continue;
+                return candidate;
+            }
+
+            return null;
+        };
+
+        const ensureAssetInArchive = (asset: { id: string; fileName: string; filePath: string | null }) => {
+            const existing = assetZipIndex.get(asset.id);
+            if (existing) return existing;
+
+            const safeName = sanitize(asset.fileName || asset.id);
+            const zipPath = `assets/${asset.id}_${safeName}`;
+            const resolvedPath = resolveAssetPath(asset.filePath);
+
+            const entry = { zipPath, included: Boolean(resolvedPath) };
+            assetZipIndex.set(asset.id, entry);
+
+            if (resolvedPath) {
+                archive.file(resolvedPath, { name: zipPath });
+            } else {
+                missingAssets.push({
+                    id: asset.id,
+                    fileName: asset.fileName,
+                    filePath: asset.filePath || null,
+                });
+            }
+
+            return entry;
+        };
 
         // Add manifest.json
         const manifest = {
@@ -62,26 +118,42 @@ export async function POST(request: Request, { params }: RouteParams) {
                         ? {
                             id: shot.heroAsset.id,
                             fileName: shot.heroAsset.fileName,
-                            zipPath: `scenes/${String(sceneIndex + 1).padStart(2, "0")}_${scene.name}/shots/${String(shotIndex + 1).padStart(2, "0")}_${shot.name}/hero_${shot.heroAsset.fileName}`,
+                            zipPath: (() => {
+                                const entry = ensureAssetInArchive(shot.heroAsset);
+                                return entry.included ? entry.zipPath : null;
+                            })(),
+                            included: ensureAssetInArchive(shot.heroAsset).included,
                         }
                         : null,
+                    assets: shot.shotAssets.map((sa) => {
+                        const entry = ensureAssetInArchive(sa.asset);
+                        return {
+                            id: sa.asset.id,
+                            fileName: sa.asset.fileName,
+                            type: sa.asset.type,
+                            role: sa.role,
+                            zipPath: entry.included ? entry.zipPath : null,
+                            included: entry.included,
+                            filePath: sa.asset.filePath,
+                        };
+                    }),
                 })),
             })),
+            missingAssets,
             exportedAt: new Date().toISOString(),
         };
 
         archive.append(JSON.stringify(manifest, null, 2), { name: "manifest.json" });
 
-        // Add hero assets to archive
-        // Note: In production, you would fetch actual files from S3
-        // For now, we add placeholder info files
+        // Add shot metadata files (asset files are included when found locally).
         for (const scene of project.scenes) {
-            const sceneDir = `scenes/${String(scene.orderIndex + 1).padStart(2, "0")}_${scene.name.replace(/[^a-zA-Z0-9]/g, "_")}`;
+            const sceneDir = `scenes/${String(scene.orderIndex + 1).padStart(2, "0")}_${sanitize(scene.name)}`;
 
             for (const shot of scene.shots) {
-                const shotDir = `${sceneDir}/shots/${String(shot.orderIndex + 1).padStart(2, "0")}_${shot.name.replace(/[^a-zA-Z0-9]/g, "_")}`;
+                const shotDir = `${sceneDir}/shots/${String(shot.orderIndex + 1).padStart(2, "0")}_${sanitize(shot.name)}`;
 
                 if (shot.heroAsset) {
+                    const heroEntry = ensureAssetInArchive(shot.heroAsset);
                     // Add info file about the hero asset
                     const assetInfo = {
                         id: shot.heroAsset.id,
@@ -90,6 +162,8 @@ export async function POST(request: Request, { params }: RouteParams) {
                         type: shot.heroAsset.type,
                         duration: shot.heroAsset.duration,
                         source: shot.heroAsset.source,
+                        zipPath: heroEntry.included ? heroEntry.zipPath : null,
+                        included: heroEntry.included,
                     };
                     archive.append(JSON.stringify(assetInfo, null, 2), {
                         name: `${shotDir}/hero_asset_info.json`,

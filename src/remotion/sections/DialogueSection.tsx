@@ -10,6 +10,7 @@ interface Props {
         primary: string;
         secondary: string;
         background: string;
+        fontFamily?: string;
     };
 }
 
@@ -58,7 +59,7 @@ export const DialogueSection: React.FC<Props> = ({
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '60px 40px',
-                fontFamily: 'sans-serif',
+                fontFamily: themeColors.fontFamily || '"Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif',
             }}
         >
             {/* 対話バブル */}
@@ -183,6 +184,8 @@ export const DialogueSection: React.FC<Props> = ({
                                         fontWeight: '600',
                                         color: 'white',
                                         lineHeight: 1.4,
+                                        whiteSpace: 'pre-wrap',
+                                        wordBreak: 'break-word',
                                     }}
                                 >
                                     {dialogue.text}
